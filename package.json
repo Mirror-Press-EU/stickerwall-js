@@ -1,0 +1,52 @@
+{
+  "name": "rewire",
+  "version": "1.0.0",
+  "description": "Frontend Pin Wall/Folder API based on KonvaJS and Vanilla Webpack(+Babel, +SCSS) JavaScript. No Jquery requiered!",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mirror-Press-EU/stickerwall-js.git"
+  },
+  "keywords": [
+    "JS",
+    "KonvaJS",
+    "Webpack",
+    "Fronend-API",
+    "VanillaJS"
+  ],
+  "author": "Tobias Stieber",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Mirror-Press-EU/stickerwall-js/issues"
+  },
+  "homepage": "https://github.com/Mirror-Press-EU/stickerwall-js#readme",
+  "devDependencies": {
+    "@babel/core": "^7.16.12",
+    "@babel/preset-env": "^7.16.11",
+    "autoprefixer": "^10.4.2",
+    "babel-loader": "^8.2.3",
+    "css-loader": "^6.6.0",
+    "extract-loader": "^5.1.0",
+    "file-loader": "^6.2.0",
+    "postcss-loader": "^6.2.1",
+    "sass": "^1.49.7",
+    "sass-loader": "^12.4.0",
+    "webpack": "^5.68.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
+  },
+  "dependencies": {
+    "@material/button": "^13.0.0",
+    "@material/dialog": "^13.0.0",
+    "@material/icon-button": "^13.0.0",
+    "@material/list": "^13.0.0",
+    "@material/ripple": "^13.0.0",
+    "@material/slider": "^13.0.0",
+    "@material/textfield": "^13.0.0",
+    "konva": "^8.3.2",
+    "material-components-web": "^13.0.0"
+  }
+}
