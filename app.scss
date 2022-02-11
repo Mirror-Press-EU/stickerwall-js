@@ -1,0 +1,35 @@
+/* ------------------------ */
+/* --- Material Imports --- */
+
+/* Listen */
+@use "@material/list";
+
+/* Text-Box */
+@use "@material/floating-label/mdc-floating-label";
+@use "@material/line-ripple/mdc-line-ripple";
+@use "@material/notched-outline/mdc-notched-outline";
+@use "@material/textfield";
+
+/* Popup - Dialog */
+@use "@material/dialog";
+
+/* Buttons */
+@use "@material/button/styles" as button-style;
+@use "@material/slider/styles" as slider-style;
+
+
+/* -------------------------- */
+/* --- Costumized Imports --- */
+@use "./sources/controller.scss";
+
+
+/*--------------------------*/
+/*@include list.core-styles;*/
+@include dialog.core-styles;
+@include textfield.core-styles;
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
