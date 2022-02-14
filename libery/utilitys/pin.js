@@ -6,7 +6,7 @@ import CostumEvtHndl from '../costum-event-handle';
 import PinAnkerOverlay from './shapes/choose-attaching-anker';
 import CostumEvtHndl from '../costum-event-handle';
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onSizesChanged", "onPositionChanged", "onFinishDrawing", "onEditorModeChanged" ];
+const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
 
 export default class Pin extends Instandable {
   _dataIdentifyer = null;
