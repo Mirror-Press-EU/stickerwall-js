@@ -1,15 +1,16 @@
+import PinFolder from './pin-folder';
 import DefaultPin from './pins/pin';
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onUpdated", "onEditorModeChanged" ];
+const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
-export default class PinFolderManager {
-  _nodes = [ ];
-  _attachments = [ ];
-  _events = { };
+export default class StickerWallManager {
+  _loadedFolder;
 
   constructor( ) {
     this.prepareCanvas( );
     this.defineEvents( EVENT_KEYS );
+
+    this.loadFromJSON( );
   }
 
 
@@ -30,6 +31,7 @@ export default class PinFolderManager {
   }
 
 
+
  /*| ___________
 --*| --- ADD ---
 --*/
@@ -48,15 +50,11 @@ export default class PinFolderManager {
       'mouseout': _=> document.body.style.cursor = 'default'
     } );
     
-    this._nodes.add( newPin );
+    this._loadedFolder.addPinNode( newPin );
   }
 
   addAttachments( newAttach, ankerDirectionList ) {
-    ankerDirectionList.forEach(
-      (curAnker) => curAnker.ownerPin.addAttachment( newAttach )
-    );
-
-    this._attachments.push( newAttach );
+    this._loadedFolder.addAttachment( newAttach );
   }
 
 
@@ -72,11 +70,18 @@ export default class PinFolderManager {
 
 
  /*| _____________
---*| --- Store ---
+--*| --- Storing ---
 --*/
 
-  loadFromJSON( ) { }
-  exportToJSON( ) { }
+  loadFromJSON( serialJsonData ) {
+    let jsonObj = (typeof serialJsonData === "string")
+      ? JSON.parse( serialJsonData ) : serialJsonData;
+      
+    this._loadedFolder = new PinFolder( ).loadFromJSON( serialJsonData );
+  }
+  exportFolderToJSON( ) {
+    return this._loadedFolder.exportToJSON( );
+  }
 
 
  /*| _______________
