@@ -1,24 +1,24 @@
 import Instandable from "../../instandable";
 
+const POS_MAPPING = {
+  top: 'TOP', topRight: 'TOP-RIGHT',
+  right: 'RIGHT', rightBottom: 'RIGHT-BOTTOM',
+  bottom: 'BOTTOM', bottomLeft: 'BOTTOM-LEFT',
+  left: 'LEFT', leftTop: 'LEFT-TOP',
+  center: 'CENTER'
+};
+
 export default class AttachmentAnker extends Instandable {
-  _position = "center";
+  _position = POS_MAPPING.center;
 
   constructor( position ) {
     super( );
     this._extAdd( "attachment-anker" );
 
-    this._position = position;
+    this.setPosition( position );
   }
 
-  getPositionMapping( ) {
-    return {
-      top: 'TOP', topRight: 'TOP-RIGHT',
-      right: 'RIGHT', rightBottom: 'RIGHT-BOTTOM',
-      bottom: 'BOTTOM', bottomLeft: 'BOTTOM-LEFT',
-      left: 'LEFT', leftTop: 'LEFT-TOP',
-      center: 'CENTER'
-    };
-  }
+  getPositionMapping( ) { return POS_MAPPING; }
 
   getKeys( ) {
     let resultKeys = [ ];
