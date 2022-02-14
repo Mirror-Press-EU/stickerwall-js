@@ -1,4 +1,6 @@
 import PinFolder from './pin-folder';
+import PinLinkQoute from './pins/link-qoute';
+import PinNotice from './pins/notice';
 import DefaultPin from './pins/pin';
 
 const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
@@ -7,8 +9,9 @@ export default class StickerWallManager {
   _loadedFolder;
 
   constructor( ) {
-    this.prepareCanvas( );
     this.defineEvents( EVENT_KEYS );
+
+    this.prepareCanvas( );
 
     this.loadFromJSON( );
   }
@@ -29,7 +32,6 @@ export default class StickerWallManager {
     if (typeof { } === "object" && !(newEventKeys instanceof Array))
     this._events = Object.assign( this._events, newEventKeys );
   }
-
 
 
  /*| ___________
@@ -54,7 +56,7 @@ export default class StickerWallManager {
   }
 
   addAttachments( newAttach, ankerDirectionList ) {
-    this._loadedFolder.addAttachment( newAttach );
+    this._loadedFolder.addAttachment( newAttach, ankerDirectionList );
   }
 
 
@@ -62,23 +64,37 @@ export default class StickerWallManager {
 --*| --- CREATE ---
 --*/
 
-  createPinNode( serialJson ) {
+  createPinNode( x, y, id ) {
     this.addPinNode( new Pin(
-      serialJson.values.x, serialJson.valuesy, serialJson.id
+      x, y, id
+    ) );
+  }
+  
+  createPinLinkQuote( x, y, id, cover, title, text ) {
+    this.addPinNode( new PinLinkQoute(
+      x, y, id,
+      cover, title, text
+    ) );
+  }
+  createPinNotice( x, y, id, title, text ) {
+    this.addPinNode( new PinNotice(
+      x, y, id,
+      title, text
     ) );
   }
 
 
  /*| _____________
---*| --- Storing ---
+--*| --- Storage ---
 --*/
 
   loadFromJSON( serialJsonData ) {
     let jsonObj = (typeof serialJsonData === "string")
       ? JSON.parse( serialJsonData ) : serialJsonData;
       
-    this._loadedFolder = new PinFolder( ).loadFromJSON( serialJsonData );
+    this._loadedFolder = new PinFolder( ).loadFromJSON( jsonObj );
   }
+
   exportFolderToJSON( ) {
     return this._loadedFolder.exportToJSON( );
   }

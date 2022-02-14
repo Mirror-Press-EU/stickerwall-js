@@ -1,12 +1,18 @@
+import PinLinkQoute from "./pins/link-qoute";
+import PinNotice from "./pins/notice";
 
+const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
+  _canDrawerInstance;
   _pins = { };
   _attachments = [ ];
   _events = { };
 
-  constructor( ) {
-  
+  constructor( canDrawerInstance ) {
+    this.defineEvents( EVENT_KEYS );
+
+    this._canDrawerInstance = canDrawerInstance;
   }
   
 
@@ -32,7 +38,7 @@ export default class PinFolder {
     return this;
   }
   
-  addAttachment( newAttachment ) {
+  addAttachment( newAttachment, ankerDirectionList ) {
     ankerDirectionList.forEach(
       (curAnker) => curAnker.ownerPin.addAttachment( newAttach )
     );
@@ -87,19 +93,18 @@ export default class PinFolder {
     let scope = this;
 
     if (pinJsonObj.length !== undefined) {
-      pinJsonObj.forEach( (curNode) => {
+      pinJsonObj.forEach( (curNodeData) => {
         let newNode = null;
 
-        switch (curNode.type.toLowerCase( )) {
-          case "link-qoute": newNode = new PinLinkQoute( );
-            break;
-
-          case "notice": newNode = new PinNotice( );
-            break;
+        switch (curNodeData.type.toLowerCase( )) {
+          case "link-qoute": newNode = new PinLinkQoute( ); break;
+          case "notice": newNode = new PinNotice( ); break;
         }
 
-        if (newNode)
+        if (newNode) {
+          newNode.fromSerialized( pinJsonObj );
           scope.pinFolder.addPin( newNode );
+        } else console.warn( "Error in Pin serialized routine..." );
       } );
     }
   }
