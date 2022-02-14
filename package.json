@@ -4,7 +4,8 @@
   "description": "Frontend Pin Wall/Folder API based on KonvaJS and Vanilla Webpack(+Babel, +SCSS) JavaScript. No Jquery requiered!",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "webpack --mode=development",
+    "start": "webpack serve --mode=development"
   },
   "repository": {
     "type": "git",
