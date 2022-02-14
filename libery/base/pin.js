@@ -6,7 +6,7 @@ import CostumEvtHndl from '../costum-event-handle';
 import PinAnkerOverlay from './shapes/choose-attaching-anker';
 import CostumEvtHndl from '../costum-event-handle';
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onSizesChanged", "onPositionChanged", "onFinishDrawing", "onEditorModeChanged" ];
+const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
 
 export default class Pin extends Instandable {
   _dataIdentifyer = null;
@@ -31,17 +31,20 @@ export default class Pin extends Instandable {
     this._extAdd( "pin-base" );
     this.defineEvents( EVENT_KEYS );
 
-    let pinInstanceScope = this;
+    if (!posX) posX = 0;
+    if (!posY) posY = 0;
+    if (!dataIdentifyer) dataIdentifyer = "UNKNOWN";
     
     this.initValues( { x:posX, y:posY } );
+
+    this.bindDefaultEvents( );
+    this.drawBasics( );
     
-    this._dataIdentifyer = (typeof dataIdentifyer === "string") ? dataIdentifyer : "UNKNOWN";
+    this._dataIdentifyer = dataIdentifyer;
     this._height = 0;
     this._width = 256;
     this._posX = posX;
     this._posY = posY;
-
-    this.drawBasics( );
   }
 
   defineEvents( newEventKeys ) {
@@ -49,36 +52,44 @@ export default class Pin extends Instandable {
     this._events = Object.assign( this._events, newEventKeys );
   }
 
+  bindDefaultEvents( ) {
+    this.addEventListener( "onFinishDrawing", (w, h) =>
+      this.updateParentSize( w, h )
+    );
+
+    this.addEventListener( "onSizesChanged", _=>
+      this.updateSize( )
+    );
+  }
+
   drawBasics( beforeFn, afterFn ) {
     if (beforeFn instanceof Function) beforeFn( );
 
     this._container = PinUtilitys.basic.addAttachmentsToCanvasNode(
-      new Konva.Group({ x: this.posX, y: this.posY, draggable: true }), this
+      new Konva.Group(
+        { x: this.posX, y: this.posY, draggable: true }
+      ),
+      this
     );
-
     this._blueprint = PinUtilitys.basic.addAttachmentsToCanvasNode(
-      new Konva.Line({
+      new Konva.Line( {
         points: [ 0, 0 ],
         stroke: 'blue', strokeWidth: 2, lineJoin: 'round', dash: [ 4, 6 ],
         opacity: 0.0
-      }), this
+      } ),
+      this
     );
-
-    this._container.add( this._blueprint );
-
-    this.addEventListener(targetEvtName, callFn);
-    
     this._ankerOverlay = new PinAnkerOverlay( );
-    this.addEventListener(
-      "onSizesChanged", (w, h) =>
-        this._ankerOverlay.updateParentSize( w, h )
+
+    this._container.add(
+      this._blueprint,
+      this._ankerOverlay
     );
-    this._container.add( this._ankerOverlay );
 
     if (afterFn instanceof Function) afterFn( );
-      this._events.trigger( "onFinishDrawing" );
 
     this._triggerEvent( "onSizesChanged", this );
+    this._triggerEvent( "onFinishDrawing", this );
   }
 
   addEventListener( targetEvtName, callFn ) {
@@ -115,17 +126,14 @@ export default class Pin extends Instandable {
     this._triggerEvent( "onValueChanged", keyValueMapping, this );
   }
 
-  /*bindAllEvents( eventMapping ) {
-    // { .dragstart, .dragend, .mouseover, .mouseout }
-    let pinInstanceScope = this;
-    
-  }*/
-
   afterDrawCalculates( ) {
     this._blueprint.setHeight( this.getChildrenHeight( ) );
   }
 
-  updateSize( pinHeight=0, pinWidth=0 ) { 
+  updateSize( ) { 
+    let pinHeight = this.getChildrenHeight( );
+    let pinWidth = this.getChildrenWidth( );
+
     this._height = pinHeight;
     this._width = pinWidth;
 
@@ -134,7 +142,7 @@ export default class Pin extends Instandable {
       -bPO, -bPO,
       pinWidth +bPO, -bPO,
       pinWidth +bPO, pinHeight +bPO,
-      -bPO, pinHeight  +bPO,
+      -bPO, pinHeight +bPO,
       -bPO, -bPO
     ]);
 
@@ -160,11 +168,23 @@ export default class Pin extends Instandable {
       y: (pos.y + centerOffset.y)
     }
   }
-  getChildrenHeight( ) { return 0; }
-  getChildrenWidth( widthList ) {
-    return widthList.reduce(
-      (outValue, curValue) => (curValue > outValue) ? outValue = curValue : outValue, 0
-    );
+  getChildrenHeight( ) { 
+    return this._container.getChildren( ).reduce( (resHeight, curChildNode) => {
+      let curHeight = curChildNode.getPosition( ).y + curChildNode.height( );
+
+      if (resHeight < curHeight) resHeight = curHeight;
+
+      //return resWidth;
+    }, 0 );
+  }
+  getChildrenWidth( ) {
+    return this._container.getChildren( ).reduce( (resWidth, curChildNode) => {
+      let curWidth = curChildNode.getPosition( ).x + curChildNode.width( );
+
+      if (resWidth < curWidth) resWidth = curWidth;
+
+      //return resWidth;
+    }, 0 );
   }
 
   getID( ) { return this._dataIdentifyer; }
