@@ -1,13 +1,47 @@
+const MDCInit = ( MDCClass, cssQueryStr ) => {
+  let resultMap = {
+    get( key ) {
+      return this[key];
+    }
+  };
+  
+  [... document.querySelectorAll( cssQueryStr )].map( (domEl) => {
+    let domID = domEl.getAttribute( "id" );
+
+    if (!domID) {
+      let childIdEl = domEl.querySelector( '[id]' );
+      if (childIdEl) domID = childIdEl.getAttribute( "id" )
+    }
+
+    let instance = new MDCClass( domEl );
+    if (domID) resultMap[ domID ] = instance;
+  } );
+
+  return resultMap;
+};
+
+import { MDCRipple } from '@material/ripple';
+import { MDCTextField } from '@material/textfield';
+import { MDCSlider } from '@material/slider';
+
+import StickerWallManager from '../libery/sticker-wall';
+
 export default class Controller {
   stickerWall;
 
   constructor( ) {
     this.stickerWall = new StickerWallManager( );
+    
+    //const app_list = MDCInit( MDCList, '.mdc-list' );
+    const app_buttons = MDCInit( MDCRipple, '.mdc-button' );
+    const app_textFields = MDCInit( MDCTextField, '.mdc-text-field' );
+    const app_slider = MDCInit( MDCSlider, '.mdc-slider' );
 
     // Default "Empty here" Splash Screen
 
     // Test Init
-    this.createPinNotice( 100, 100, "test", "test-title", "test text... test text... test text... test text... " );
+    this.stickerWall.deployNewFolder( );
+    this.stickerWall.createPinNotice( 100, 100, "test", "test-title", "test text... test text... test text... test text... " );
     //this.stickerWall.loadFolderFromLocalStorage( );
   }
 
@@ -50,7 +84,7 @@ export default class Controller {
 
   bindZoomBar( ) {
     let zoomBarControllMapping = this.getElement( [ 'sidebar', 'zoom' ] );
-    
+
     if (zoomBarControllMapping) this.setElement(
       [ 'sidebar', 'zoom', 'instance' ],
       new CostumZoomBar( zoomBarControllMapping, this.canDrawer )
