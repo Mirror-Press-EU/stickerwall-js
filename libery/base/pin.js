@@ -1,10 +1,9 @@
 import Konva from 'konva';
 
-import PinUtilitys from './pin-utilitys';
+import PinUtilitys from './pin.utils';
 import Instandable from '../instandable';
 import CostumEvtHndl from '../costum-event-handle';
-import PinAnkerOverlay from './shapes/choose-attaching-anker';
-import CostumEvtHndl from '../costum-event-handle';
+//import PinAnkerOverlay from '';
 
 const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
 
@@ -52,6 +51,19 @@ export default class Pin extends Instandable {
     this._events = Object.assign( this._events, newEventKeys );
   }
 
+  addEventListener( targetEvtName, callFn ) {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr) targetEvtHndlr.add( callFn );
+
+    return this;
+  }
+
+  _triggerEvent( targetEvtName, param1, param2 ) {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr)
+      targetEvtHndlr.trigger( param1, param2 );
+  }
+
   bindDefaultEvents( ) {
     this.addEventListener( "onFinishDrawing", (w, h) =>
       this.updateParentSize( w, h )
@@ -60,6 +72,28 @@ export default class Pin extends Instandable {
     this.addEventListener( "onSizesChanged", _=>
       this.updateSize( )
     );
+  }
+
+  bindAllEvents( evtFunctionMapping ) {
+    for (let curEvtName in evtFunctionMapping) {
+      let curEvtFn = evtFunctionMapping[ curEvtName ];
+
+      if (curEvtFn instanceof Function) {
+        let targetNodeShape;
+        switch (curEvtName.toLocaleLowerCase( )) {
+          case "dragstart":
+          case "dragend":
+          case "mouseover":
+          case "mouseout":
+            targetNodeShape = this._container;
+            break;
+          default:
+            targetNodeShape = null;
+        }
+
+        if (targetNodeShape) targetNodeShape.on( curEvtName, curEvtFn );
+      }
+    }
   }
 
   drawBasics( beforeFn, afterFn ) {
@@ -79,30 +113,17 @@ export default class Pin extends Instandable {
       } ),
       this
     );
-    this._ankerOverlay = new PinAnkerOverlay( );
+    //this._ankerOverlay = new PinAnkerOverlay( );
 
     this._container.add(
       this._blueprint,
-      this._ankerOverlay
+      //this._ankerOverlay
     );
 
     if (afterFn instanceof Function) afterFn( );
 
     this._triggerEvent( "onSizesChanged", this );
     this._triggerEvent( "onFinishDrawing", this );
-  }
-
-  addEventListener( targetEvtName, callFn ) {
-    let targetEvtHndlr = this._events[ targetEvtName ];
-    if (targetEvtHndlr) targetEvtHndlr.add( callFn );
-
-    return this;
-  }
-
-  _triggerEvent( targetEvtName, param1, param2 ) {
-    let targetEvtHndlr = this._events[ targetEvtName ];
-    if (targetEvtHndlr)
-      targetEvtHndlr.trigger( param1, param2 );
   }
 
   initValues( initMappedValuesObj ) {

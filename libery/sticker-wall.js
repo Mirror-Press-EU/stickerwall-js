@@ -1,11 +1,15 @@
 import PinFolder from './pin-folder';
 import PinLinkQoute from './pins/link-qoute';
 import PinNotice from './pins/notice';
-import DefaultPin from './pins/pin';
+import DefaultPin from './base/pin';
+import CanvasDrawer from './can-drawer';
 
 const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class StickerWallManager {
+  _pressedKeyMapping = { };
+  _canDrawer;
+  
   _loadedFolder;
 
   constructor( ) {
@@ -13,7 +17,9 @@ export default class StickerWallManager {
 
     this.prepareCanvas( );
 
-    this.loadFromJSON( );
+    //this.toolbox;
+
+    //this.loadFromJSON( );
   }
 
 
@@ -21,7 +27,10 @@ export default class StickerWallManager {
 --*| --- INIT ---
 --*/
 
-  prepareCanvas( ) { }
+  // --- Init Canvas ---
+  prepareCanvas( ) {
+    this._canDrawer = new CanvasDrawer( "canvas-display", this._pressedKeyMapping );
+  }
 
 
  /*| ____________________
@@ -33,12 +42,16 @@ export default class StickerWallManager {
     this._events = Object.assign( this._events, newEventKeys );
   }
 
+  onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }
+  onGuiKeyUp( ) { this._pressedKeyMapping[e.keyCode] = false; }
+
 
  /*| ___________
 --*| --- ADD ---
 --*/
 
   addPinNode( newPin ) {
+    // Bindings
     newPin.bindAllEvents( {
       'dragstart': _=> {
         newPin._blueprint.setOpacity( 1.0 );
@@ -52,7 +65,11 @@ export default class StickerWallManager {
       'mouseout': _=> document.body.style.cursor = 'default'
     } );
     
+    // Storage
     this._loadedFolder.addPinNode( newPin );
+
+    // Drawing
+    this._canDrawer.drawPin( newPin.getDisplayNode( ) );
   }
 
   addAttachments( newAttach, ankerDirectionList ) {
@@ -63,6 +80,10 @@ export default class StickerWallManager {
  /*| ______________
 --*| --- CREATE ---
 --*/
+
+  deployNewFolder( ) {
+    this._loadedFolder = new PinFolder( );
+  }
 
   createPinNode( x, y, id ) {
     this.addPinNode( new Pin(

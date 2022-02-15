@@ -4,15 +4,12 @@ import PinNotice from "./pins/notice";
 const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
-  _canDrawerInstance;
   _pins = { };
   _attachments = [ ];
   _events = { };
 
   constructor( canDrawerInstance ) {
     this.defineEvents( EVENT_KEYS );
-
-    this._canDrawerInstance = canDrawerInstance;
   }
   
 
@@ -26,13 +23,10 @@ export default class PinFolder {
     if (!this._pins[ pinID ]) {
       // Events and Handling
       pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
-      this._pinToolbar.observePinNode( pinInstanceObj )
+      //this._pinToolbar.observePinNode( pinInstanceObj ) // @TODO: PinToolbar
 
       // Storage
       this._pins[ pinID ] = pinInstanceObj;
-
-      // Drawing
-      this._canDrawerInstance.drawPin( pinInstanceObj.getDisplayNode( ) );
     } else console.log( "ID Kollision! Fehler bei Key Regestrierung!" );
 
     return this;
@@ -150,5 +144,28 @@ export default class PinFolder {
     
 
     return JSON.stringify(resultObj) ;
+  }
+
+
+  /*| ______________________
+ --*| --- Dynamic Events ---
+ --*/
+
+  defineEvents( newEventKeys ) {
+    if (typeof { } === "object" && !(newEventKeys instanceof Array))
+    this._events = Object.assign( this._events, newEventKeys );
+  }
+
+  addEventListener( targetEvtName, callFn ) {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr) targetEvtHndlr.add( callFn );
+
+    return this;
+  }
+
+  _triggerEvent( targetEvtName, param1, param2 ) {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr)
+      targetEvtHndlr.trigger( param1, param2 );
   }
 }
