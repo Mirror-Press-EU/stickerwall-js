@@ -27,9 +27,34 @@ export default class StickerWallManager {
 --*| --- INIT ---
 --*/
 
+  initKonvaCan( ) {
+    let scope = this;
+    let toolboxActCalls = {
+      editActionFn: ( selPin, cUpEvt ) => {
+        let quoteDialog = scope.getElement( [ 'dialogs', 'modifyPinQoute', 'container' ] );
+        quoteDialog.fillFormular( "MODIFY", selPin.values );
+        quoteDialog.open( );
+      },
+      removedActionFn: (selPin) => scope.pinFolder.removePin( selPin ),
+    };
+  }
+
   // --- Init Canvas ---
   prepareCanvas( ) {
     this._canDrawer = new CanvasDrawer( "canvas-display", this._pressedKeyMapping );
+  }
+
+
+  /*| ______________
+ --*| --- GETTER ---
+ --*/
+
+  getCanDrawer( ) {
+    return this._canDrawer;
+  }
+
+  getPinFolder( ) {
+    return this._loadedFolder;
   }
 
 
@@ -86,22 +111,31 @@ export default class StickerWallManager {
   }
 
   createPinNode( x, y, id ) {
-    this.addPinNode( new Pin(
+    let newNode = new Pin(
       x, y, id
-    ) );
+    )
+
+    this.addPinNode( newNode );
+    return newNode;
   }
   
   createPinLinkQuote( x, y, id, cover, title, text ) {
-    this.addPinNode( new PinLinkQoute(
+    let newNode = new PinLinkQoute(
       x, y, id,
       cover, title, text
-    ) );
+    );
+
+    this.addPinNode( newNode );
+    return newNode;
   }
   createPinNotice( x, y, id, title, text ) {
-    this.addPinNode( new PinNotice(
+    let newNode = new PinNotice(
       x, y, id,
       title, text
-    ) );
+    )
+
+    this.addPinNode( newNode );
+    return newNode;
   }
 
 

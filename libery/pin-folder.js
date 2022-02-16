@@ -45,6 +45,11 @@ export default class PinFolder {
 --*| --- Getter ---
 --*/
 
+  getPin( pinID ) {
+    if (typeof pinID !== "string") pinID = pinID._dataIdentifyer;
+    return this._pins[ pinID ];
+  }
+
   getAllPins( ) {
     let pinList = [];
     for (let id in this._pins)
@@ -53,9 +58,9 @@ export default class PinFolder {
     return pinList;
   }
 
-  getPin( pinID ) {
-    if (typeof pinID !== "string") pinID = pinID._dataIdentifyer;
-    return this._pins[ pinID ];
+  getPinsMap( ) { return this._pins; }
+  getPinCount( ) {
+    return this.getPinsList( ).length;
   }
 
   getNextRandomID( prefix ) {
@@ -63,6 +68,23 @@ export default class PinFolder {
     while (this.getPin( prefix + idIndex )) idIndex ++;
 
     return prefix + idIndex;
+  }
+
+  getAttachmentList( ) { return this._attachments; }
+
+  getAttachmentsFromPin( searchValue ) {
+    let resultList = [ ];
+    if (searchValue instanceof Pin) searchValue = searchValue.getID;
+
+    if (this._pins[ searchValue ]) {
+      this._attachments.forEach( (curAttach) => {
+        if (curAttach.getPin( )) {
+          resultList.push( curAttach );
+        }
+      } );
+    }
+
+    return resultList;
   }
 
 
