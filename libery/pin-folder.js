@@ -8,7 +8,7 @@ export default class PinFolder {
   _attachments = [ ];
   _events = { };
 
-  constructor( canDrawerInstance ) {
+  constructor( ) {
     this.defineEvents( EVENT_KEYS );
   }
   
@@ -22,7 +22,7 @@ export default class PinFolder {
 
     if (!this._pins[ pinID ]) {
       // Events and Handling
-      pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
+      //pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
       //this._pinToolbar.observePinNode( pinInstanceObj ) // @TODO: PinToolbar
 
       // Storage

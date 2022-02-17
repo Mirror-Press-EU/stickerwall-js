@@ -58,7 +58,7 @@ export default class Controller {
       document.getElementById( 'dialog--mod-pin-qoute' ),
       [ "title", "text" ], this.controlls.dialogs.modifyPinQoute,
       this.stickerWall
-    )
+    );
   }
 
   initGui( ) {
@@ -141,9 +141,6 @@ export default class Controller {
 
     this.initAllDialogs( );
     this.bindButtonsEvents( );
-
-    window.onkeyup = (e) => this.pressedKeyMapping[e.keyCode] = false;
-    window.onkeydown = (e) => this.pressedKeyMapping[e.keyCode] = true;
   }
 
   /*| _______________

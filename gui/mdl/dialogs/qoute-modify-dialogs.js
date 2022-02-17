@@ -6,7 +6,7 @@ export default class QouteModifyDialog extends BaseDialog {
   }
   
   initNewValues( ) {
-    this._resultInstance = pinMangerScope.createPinLinkQuote( );
+    this._resultInstance = this._pinManager.createPinLinkQuote( );
   }
   
   // Overriding Methods

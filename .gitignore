@@ -104,3 +104,7 @@ dist
 .tern-port
 libery/attachments/connection.js
 libery/attachments/shapes.js
+assets/icons/add_black_24dp.svg
+assets/icons/icons.js
+assets/svg-shapes/Notice.svg
+assets/svg-shapes/Notice2.svg
