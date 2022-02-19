@@ -185,7 +185,7 @@ export default class StickerWallManager {
   createPinLinkQuote( x, y, id, cover, title, text ) {
     let newNode = new PinLinkQoute(
       x, y, id,
-      cover, title, text
+      { cover, title, text, sourceLogo:null }
     );
 
     this.addPinNode( newNode );

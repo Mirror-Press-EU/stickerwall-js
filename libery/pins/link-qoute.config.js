@@ -1,17 +1,22 @@
+const WIDTH = 256;
+
+const STROKE_PADDING = 4;
+
 export default {
   childs: {
     'container': {
       x: 0, y: 0,
-      width: 256, height: 256,
-      fill: 'rgba(255,255,255,.86)',
-      stroke: 'rgba(0,0,0,.25)', strokeWidth: 2,
-      cornerRadius: 12
+      width: WIDTH, height: 0,
+      fill: '#ffffff',
+      //stroke: 'rgb( 100, 100, 100 )', strokeWidth: 8,
+      cornerRadius: 12,
+      opacity: .25,
     },
     'cover': {
-      x: 1, y: 1,
-      width: 254, height: 128,
+      x: STROKE_PADDING, y: STROKE_PADDING,
+      width: WIDTH -STROKE_PADDING*2, height: 128,
       opacity: 0.87,
-      cornerRadius: [ 12, 12, 0, 0 ],
+      cornerRadius: 9 //[ 9, 9, 0, 0 ]
     },
     'sourceLogo': {
       x: 0, y: 0,
@@ -22,19 +27,19 @@ export default {
       shadowOffset: { x: 2.5, y: 2.5 }
     },
     'title': {
-      x: 0, y: 136,
+      x: 0, y: 128 +16,
       text: "",
       fontSize: 18, fontFamily: 'Calibri',
       fill: '#555',
-      width: 256, padding: 8,
+      width: WIDTH, padding: 8,
       align: "center"
     },
     'text': {
-      x: 0, y: 168,
+      x: 16, y: 128 +24,
       text: "",
       fontSize: 12, fontheight:16, fontFamily: 'Calibri',
       fill: '#555',
-      width: 256, padding: 32,
+      width: WIDTH -32,
       align: "center"
     }
   }

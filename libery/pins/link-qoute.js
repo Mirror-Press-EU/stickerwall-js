@@ -1,6 +1,7 @@
 import Konva from 'konva';
 
 import PinUtilitys from '../base/pin.utils';
+import Utilitys from './link-qoute.utils';
 import BasisPin from "../base/pin";
 
 import __DEFAULT_CONFIG__ from './link-qoute.config';
@@ -23,22 +24,35 @@ export default class PinLinkQoute extends BasisPin {
     
     this.pinType = "link-qoute";
 
-    this._height = 0;
-    this._width = 256;
-
     this.initValues( valuesObj );
 
     this.drawAllSprites( );
     
-    this.fetchCoverImage( "https://i1.wp.com/mirror-press.de/wp-content/uploads/2020/12/Werkzeuge_01-scaled.jpg?w=256" );
+    this.fetchCoverImage( "https://i1.wp.com/mirror-press.de/wp-content/uploads/2020/12/Werkzeuge_01-scaled.jpg" );
 
     this.updateSize( );
+
+    this.background.fill( "rgb(100,100,100)" );
   }
 
   fetchCoverImage( url ) {
+    let targetCover = this.cover;
+    let w = this._width;
+    let h = this._height;
     /*let coverImage = new Image( );
-    coverImage.onload = _=> this.cover.setFillPatternImage( coverImage );
-    coverImage.src = url;*/
+    coverImage.onload = _=> {
+      targetCover.setFillPatternImage( coverImage );
+    };*/
+    Utilitys.fetchImage(
+      url, ( img, suc ) => {
+        if (!suc) return;
+
+        let zoomLevel = Utilitys.getZoomValueFromImageSize( img, w, h );
+        targetCover.fillPatternScale( { x:zoomLevel, y:zoomLevel } );
+        targetCover.setFillPatternImage( img );
+      }
+    );
+    //coverImage.src = url;
   }
 
   drawAllSprites( ) {
@@ -87,7 +101,10 @@ export default class PinLinkQoute extends BasisPin {
 
     this.background.setHeight( pinHeight ); // Background
 
-    this.text.setPosition({ x:0, y: 108 + this.title.height( ) }); // Textdarstellung
+    this.text.setPosition( {
+      x: __DEFAULT_CONFIG__.childs.text.x,
+      y: this.title.height( ) + __DEFAULT_CONFIG__.childs.text.y
+    } ); // Textdarstellung
   }
 
   /*getChildrenHeight( ) {

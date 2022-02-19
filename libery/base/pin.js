@@ -194,8 +194,7 @@ export default class Pin extends Instandable {
       let curHeight = curChildNode.getPosition( ).y + curChildNode.height( );
 
       if (resHeight < curHeight) resHeight = curHeight;
-
-      //return resWidth;
+      return resHeight;
     }, 0 );
   }
   getChildrenWidth( ) {
