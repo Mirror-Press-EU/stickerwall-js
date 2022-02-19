@@ -42,7 +42,7 @@ export default class Controller {
 
     // Test Init
     this.stickerWall.deployNewFolder( );
-    this.stickerWall.createPinNotice( 100, 100, "test", "test-title", "test text... test text... test text... test text... " );
+    //this.stickerWall.createPinNotice( 100, 100, "test", "test-title", "test text... test text... test text... test text... " );
     //this.stickerWall.loadFolderFromLocalStorage( );
   }
 

@@ -19,6 +19,8 @@ export default class Pin extends Instandable {
   _ankerOverlay = null;
   _background = null;
 
+  _contentShapes = [ ];
+
   pinType;
   values = { };
   _attachments = [ ];
@@ -44,6 +46,18 @@ export default class Pin extends Instandable {
     this._width = 256;
     this._posX = posX;
     this._posY = posY;
+  }
+
+  _addShape( newShape, isRelativ=false ) {
+    if (!newShape) console.warn( "Param is Null!!" );
+    else if (this._container) {
+      PinUtilitys.basic.addAttachmentsToCanvasNode( newShape, this );
+
+      if (!isRelativ) this._contentShapes.push( newShape );
+      if (this._container != newShape) this._container.add( newShape );
+    }
+
+    return newShape;
   }
 
   defineEvents( newEventKeys ) {
@@ -99,25 +113,20 @@ export default class Pin extends Instandable {
   drawBasics( beforeFn, afterFn ) {
     if (beforeFn instanceof Function) beforeFn( );
 
-    this._container = PinUtilitys.basic.addAttachmentsToCanvasNode(
-      new Konva.Group(
-        { x: this.posX, y: this.posY, draggable: true }
-      ),
-      this
+    this._container = this._addShape(
+      new Konva.Group( {
+        x: this.posX, y: this.posY,
+        draggable: true
+      } ),
+      true
     );
-    this._blueprint = PinUtilitys.basic.addAttachmentsToCanvasNode(
+    this._blueprint = this._addShape(
       new Konva.Line( {
         points: [ 0, 0 ],
         stroke: 'blue', strokeWidth: 2, lineJoin: 'round', dash: [ 4, 6 ],
         opacity: 0.0
       } ),
-      this
-    );
-    //this._ankerOverlay = new PinAnkerOverlay( );
-
-    this._container.add(
-      this._blueprint,
-      //this._ankerOverlay
+      true
     );
 
     if (afterFn instanceof Function) afterFn( );
@@ -152,24 +161,25 @@ export default class Pin extends Instandable {
   }
 
   updateSize( ) { 
-    let pinHeight = this.getChildrenHeight( );
-    let pinWidth = this.getChildrenWidth( );
+    this._height = this.getChildrenHeight( );
+    this._width = this.getChildrenWidth( );
 
-    this._height = pinHeight;
-    this._width = pinWidth;
+    let h = this._height + 16;
+    let w = this._width;
 
     const bPO = 8;
     this._blueprint.setPoints([
-      -bPO, -bPO,
-      pinWidth +bPO, -bPO,
-      pinWidth +bPO, pinHeight +bPO,
-      -bPO, pinHeight +bPO,
-      -bPO, -bPO
+    //  X       Y
+      -bPO,   -bPO,   // Left/Top (start)
+    w +bPO,   -bPO,   // Rechts/Top
+    w +bPO, h +bPO*2, // Rechts/Bottom
+      -bPO, h +bPO*2, // Left/Bottom
+      -bPO,   -bPO    // Left/Top (end)
     ]);
 
     this._triggerEvent(
       "onSizesChanged", // EvtName
-      { pinHeight, pinWidth }, // New ParamValues
+      { h, w }, // New ParamValues
       this // PinScope
     );
   }
@@ -190,7 +200,7 @@ export default class Pin extends Instandable {
     }
   }
   getChildrenHeight( ) { 
-    return this._container.getChildren( ).reduce( (resHeight, curChildNode) => {
+    return this._contentShapes.reduce( (resHeight, curChildNode) => {
       let curHeight = curChildNode.getPosition( ).y + curChildNode.height( );
 
       if (resHeight < curHeight) resHeight = curHeight;
@@ -198,12 +208,11 @@ export default class Pin extends Instandable {
     }, 0 );
   }
   getChildrenWidth( ) {
-    return this._container.getChildren( ).reduce( (resWidth, curChildNode) => {
+    return this._contentShapes.reduce( (resWidth, curChildNode) => {
       let curWidth = curChildNode.getPosition( ).x + curChildNode.width( );
 
       if (resWidth < curWidth) resWidth = curWidth;
-
-      //return resWidth;
+      return resWidth;
     }, 0 );
   }
 

@@ -59,35 +59,28 @@ export default class PinLinkQoute extends BasisPin {
     let pinScope = this;
     const beforeBasicFn = _=> { };
     const afterBasicFn = _=> {
-      pinScope.background = PinUtilitys.basic.addAttachmentsToCanvasNode(
-        new Konva.Rect( __DEFAULT_CONFIG__.childs.container ), pinScope
+      pinScope.background = this._addShape(
+        new Konva.Rect( __DEFAULT_CONFIG__.childs.container )
       );
-      pinScope.cover = PinUtilitys.basic.addAttachmentsToCanvasNode(
-        new Konva.Rect( __DEFAULT_CONFIG__.childs.cover ), pinScope
+      pinScope.cover = this._addShape(
+        new Konva.Rect( __DEFAULT_CONFIG__.childs.cover )
       );
-      pinScope.sourceLogo = PinUtilitys.basic.addAttachmentsToCanvasNode(
+      pinScope.sourceLogo = this._addShape(
         new Konva.Rect( Object.assign(
           __DEFAULT_CONFIG__.childs.sourceLogo, { fillPatternImage: CostumIcons.getImage( "test_logo" ) }
-        ) ), pinScope
+        ) )
       );
-      pinScope.title = PinUtilitys.basic.addAttachmentsToCanvasNode(
+      pinScope.title = this._addShape(
         new Konva.Text( Object.assign(
           __DEFAULT_CONFIG__.childs.title, { text: this.values.title }
-        ) ), pinScope
+        ) )
       );
-      pinScope.text = PinUtilitys.basic.addAttachmentsToCanvasNode(
+      pinScope.text = this._addShape(
         new Konva.Text( Object.assign(
           __DEFAULT_CONFIG__.childs.text, { text: this.values.text }
-        ) ), pinScope
+        ) )
       );
       
-      pinScope._container.add(
-        pinScope.background,
-        pinScope.cover,
-        pinScope.sourceLogo,
-        pinScope.title,
-        pinScope.text
-      );
       pinScope.afterDrawCalculates( );
     };
 
@@ -97,7 +90,7 @@ export default class PinLinkQoute extends BasisPin {
   updateSize( ) {
     let pinHeight = this.getChildrenHeight( ) + 24;
     let pinWidth = this.getChildrenWidth( );
-    super.updateSize( pinHeight, pinWidth );
+    super.updateSize( );
 
     this.background.setHeight( pinHeight ); // Background
 
