@@ -1,4 +1,4 @@
-import Instandable from "../../instandable";
+import Instandable from "../instandable";
 
 const POS_MAPPING = {
   top: 'TOP', topRight: 'TOP-RIGHT',
