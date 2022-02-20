@@ -25,19 +25,23 @@ export default {
     getCornerOffsetPos( ankerPosKey, w, h ) {
       let POS = this.positions;
       let returnPos = { x:0, y:0 };
+
+      ankerPosKey = ankerPosKey.toUpperCase( );
       
       if (!ankerPosKey.includes( POS.top )) returnPos.y += h / 2; // Wenn nicht Top ist dann ist mitte...
       if (ankerPosKey.includes( POS.bottom )) returnPos.y += h / 2; // Wenn Bottom ist dann unten (2x die hälfte)
     
       if (!ankerPosKey.includes( POS.left )) returnPos.x += w / 2; // Wenn nicht Left ist dann ist mitte...
       if (ankerPosKey.includes( POS.right )) returnPos.x += w / 2; // Wenn Right ist dann unten (2x die hälfte)
+
+      return returnPos;
     },
     getCornerPos( pinInstance, ankerPos ) {
       let POS = this.positions;
       let ankerPosKey;
 
-      if (typeof ankerPos === "string") ankerPosKey = ankerPos;
-      else if (ankerPos.instanceOf( "attachment-anker" )) ankerPosKey = ankerPos.getPosKey( );
+      if (typeof ankerPos === "string") ankerPosKey = ankerPos.toUpperCase( );
+      else if (ankerPos.instanceOf( "attachment-anker" )) ankerPosKey = ankerPos.getPosKey( ).toUpperCase( );
       else ankerPosKey = allPos.center;
 
       let returnPos = pinInstance.getPosition( );
@@ -45,9 +49,9 @@ export default {
       let pinWidth = pinInstance.getWidth( );
       let pinHeight = pinInstance.getHeight( );
 
-      this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
+      let finalReturnPos = this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
     
-      return returnPos;
+      return finalReturnPos;
     },
     getPaddindCornerPos( ankerPos, paddingValue, defaultPos=null) {
       let POS = this.positions;
@@ -57,7 +61,7 @@ export default {
       else if (ankerPos.instanceOf( "attachment-anker" )) ankerPosKey = ankerPos.getPosKey( );
       else ankerPosKey = allPos.center;
 
-      if (!defaultPos.x || !defaultPos.y) defaultPos = { x:0, y:0 };
+      if (isNaN(defaultPos.x) || isNaN(defaultPos.y)) defaultPos = { x:0, y:0 };
     
       let returnPos = {
         x: 0 - paddingValue, //Links

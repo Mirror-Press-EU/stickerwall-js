@@ -60,7 +60,7 @@ export default class PinFolder {
 
   getPinsMap( ) { return this._pins; }
   getPinCount( ) {
-    return this.getPinsList( ).length;
+    return this.getAllPins( ).length;
   }
 
   getNextRandomID( prefix ) {
@@ -189,5 +189,58 @@ export default class PinFolder {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2 );
+  }
+
+  _triggerPinEvent( targetPin, eventNameStr, param1, param2 ) {
+    if (typeof targetPin === "string") targetPin = this.getPin( targetPin );
+
+    targetPin._triggerEvent( eventNameStr, param1, param2 );
+  }
+
+  _triggerAllPinsEvent( eventNameStr, param1, param2 ) {
+    this.getAllPins( ).forEach(
+      (curPin) => this._triggerPinEvent( curPin, eventNameStr, param1, param2 )
+    );
+  }
+
+  __onDisplayModeNameStr = null;
+  __onDisplayModeFinishedFn = _=> { };
+  __onDisplayModeChoosenPins = { };
+  onDisplayModeValueChanged( targetPin, newState ) {
+    let targetSlot = this.__onDisplayModeChoosenPins[ targetPin.id ];
+
+    if (targetSlot === undefined && newState) {
+      this.__onDisplayModeChoosenPins[ targetPin.id ] = targetPin;
+    } else delete this.__onDisplayModeChoosenPins[ targetPin.id ];
+
+    let count = 0;
+    for (let i in this.__onDisplayModeChoosenPins) count++;
+
+    if (count >= 2) {
+      this.__onDisplayModeFinishedFn(  );
+      this.setDisplayMode( "", false );
+    }
+  }
+  setDisplayMode( modeNameStr, newState, onFinishedFunction ) {
+    let canvas = document.getElementById( "canvas-display" );
+
+    if (newState) {
+      canvas.classList.add( "editor-modus-enabled" );
+
+      this.__onDisplayModeNameStr = modeNameStr;
+      this.__onDisplayModeFinishedFn = onFinishedFunction;
+  
+      this._triggerAllPinsEvent(
+        "onEditorModeChanged", newState, 
+        (a, b, c) => this.onDisplayModeValueChanged( a, b, c )
+      );
+    }
+    else {
+      canvas.classList.remove( "editor-modus-enabled" );
+
+      this.__onDisplayModeNameStr = null;
+      this.__onDisplayModeFinishedFn = _=> { };
+      this.__onDisplayModeChoosenPins = { };
+    }
   }
 }

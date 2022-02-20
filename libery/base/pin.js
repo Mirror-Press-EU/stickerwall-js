@@ -3,9 +3,10 @@ import Konva from 'konva';
 import PinUtilitys from './pin.utils';
 import Instandable from '../instandable';
 import CostumEvtHndl from '../costum-event-handle';
+import AttachOverlay from './attach-overlay';
 //import PinAnkerOverlay from '';
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
+const EVENT_KEYS = [ "onSizesChanged", "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
 
 export default class Pin extends Instandable {
   _dataIdentifyer = null;
@@ -39,7 +40,6 @@ export default class Pin extends Instandable {
     this.initValues( { x:posX, y:posY } );
 
     this.bindDefaultEvents( );
-    this.drawBasics( );
     
     this._dataIdentifyer = dataIdentifyer;
     this._height = 0;
@@ -61,8 +61,15 @@ export default class Pin extends Instandable {
   }
 
   defineEvents( newEventKeys ) {
-    if (typeof { } === "object" && !(newEventKeys instanceof Array))
-    this._events = Object.assign( this._events, newEventKeys );
+    if (typeof newEventKeys === "object") {
+      if (newEventKeys instanceof Array) {
+
+        newEventKeys.forEach(
+          (curKey) => this._events[curKey] = new CostumEvtHndl( )
+        );
+
+      } else this._events = Object.assign( this._events, newEventKeys );
+    }
   }
 
   addEventListener( targetEvtName, callFn ) {
@@ -79,12 +86,24 @@ export default class Pin extends Instandable {
   }
 
   bindDefaultEvents( ) {
+    let scope = this;
+
     this.addEventListener( "onFinishDrawing", (w, h) =>
-      this.updateParentSize( w, h )
+      scope.updateSize( )
     );
 
-    this.addEventListener( "onSizesChanged", _=>
-      this.updateSize( )
+    this.addEventListener( "onEditorModeChanged", (newState, folderScope) => {
+      if (newState) {
+        scope._ankerOverlay.performStart(
+          (a,b,c) => console.log( a, b, c )
+        );
+      } else scope._ankerOverlay.performFinish( );
+    }
+      
+    );
+
+    this.addEventListener( "onValueChanged", _=>
+      scope.updateSize( )
     );
   }
 
@@ -129,9 +148,18 @@ export default class Pin extends Instandable {
       true
     );
 
+    this._height = this.getChildrenHeight( );
+    this._width = this.getChildrenWidth( );
+
     if (afterFn instanceof Function) afterFn( );
 
-    this._triggerEvent( "onSizesChanged", this );
+    this._ankerOverlay = this._addShape(
+      new AttachOverlay( this._width, this._height, this )
+    );
+    this.addEventListener(
+      "onSizesChanged", _=> this._ankerOverlay.calibrateAllButtons( )
+    );
+
     this._triggerEvent( "onFinishDrawing", this );
   }
 
