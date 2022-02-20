@@ -221,8 +221,9 @@ export default class StickerWallManager {
  /*| _______________
 --*| --- Display ---
 --*/
-
-  setDisplayMode( ) { }
+  setDisplayMode( modeNameStr, newState, onFinishedFunction ) {
+    this._loadedFolder.setDisplayMode( modeNameStr, newState, onFinishedFunction );
+  }
   setDisplayZoom( newZoomFloat ) { // .25 (25%) -> 1.75 (175%)
 
   }

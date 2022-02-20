@@ -257,12 +257,23 @@ export default class Controller {
     );
   }
 
+  onEditorModeFinished(a, b, c) {
+    console.log(a, b, c);
+  }
+
   bindCreateConnection( ) {
     let createConnectionButton = this.controlls.getElement( [ 'toolbox', 'createButtons', 'connection' ] );
-    let targetPinFolder = this.stickerWall.getPinFolder( );
 
-    if (createConnectionButton && targetPinFolder)
-      if (targetPinFolder.getPinCount( ) > 0)
-        this.stickerWall.onEditorModeChanged( "onEditorModeChanged", "ATTACHING", this ); // Wechsel alle Pins in den Attaching Mode
+    if (createConnectionButton)
+      createConnectionButton.root.addEventListener( "click", _=> {
+        let targetPinFolder = this.stickerWall.getPinFolder( );
+        if (targetPinFolder.getPinCount( ) >= 2)
+          this.stickerWall.setDisplayMode(
+            "ATTACHING", true, (a, b, c)=> {
+              this.onEditorModeFinished( a, b, c )
+            }
+          ); // Wechsel alle Pins in den Attaching Mode
+        else alert( "Not enough Pins to add a Connection!" );
+      });
   }
 }

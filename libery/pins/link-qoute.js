@@ -32,7 +32,7 @@ export default class PinLinkQoute extends BasisPin {
 
     this.updateSize( );
 
-    this.background.fill( "rgb(100,100,100)" );
+    //this.background.fill( "rgb(100,100,100)" );
   }
 
   fetchCoverImage( url ) {
@@ -115,8 +115,6 @@ export default class PinLinkQoute extends BasisPin {
     this.text.setText( newAttrValues.text );
 
     this.updateValues( newAttrValues );
-
-    this.updateSize( );
   }
 
   serializeToJSON( ) {

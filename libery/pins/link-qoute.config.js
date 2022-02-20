@@ -7,7 +7,7 @@ export default {
     'container': {
       x: 0, y: 0,
       width: WIDTH, height: 0,
-      fill: '#ffffff',
+      fill: 'rgb( 160, 160, 160 )',
       //stroke: 'rgb( 100, 100, 100 )', strokeWidth: 8,
       cornerRadius: 12,
       opacity: .25,

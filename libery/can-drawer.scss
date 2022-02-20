@@ -1,6 +1,18 @@
 body {  
-  #root {
+  #canvas-display {
     width: 100vw;
     height: 100vh;
+
+    width: calc(100vw - 1rem);
+    height: calc(100vh - 1rem);
+    border: 0.25rem dashed transparent;
+    border-radius: 1rem 1rem 4rem 1rem;
+    margin: 0.25rem;
+
+    overflow: hidden;
+
+    &.editor-modus-enabled {
+      border-color: rgba(98, 0, 238, .5);
+    }
   }
 }
