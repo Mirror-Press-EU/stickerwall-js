@@ -3,6 +3,8 @@ import PinLinkQoute from './pins/link-qoute';
 import PinNotice from './pins/notice';
 import DefaultPin from './base/pin';
 import CanvasDrawer from './can-drawer';
+import PinConnection from './attachments/connection';
+import AttachmentAnker from './attachments/anker';
 
 const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
@@ -160,8 +162,21 @@ export default class StickerWallManager {
     this._canDrawer.drawPin( newPin.getDisplayNode( ) );
   }
 
-  addAttachments( newAttach, ankerDirectionList ) {
-    this._loadedFolder.addAttachment( newAttach, ankerDirectionList );
+  addAttachment( newAttach ) {
+    this._loadedFolder.addAttachment( newAttach );
+    this._canDrawer.drawAttachment( newAttach );
+  }
+
+  attachPinConnection( pinInfoA, pinInfoB ) {
+    this.addAttachment(
+      new PinConnection(
+        pinInfoA.pin,
+        new AttachmentAnker( pinInfoA.anker ),
+
+        pinInfoB.pin,
+        new AttachmentAnker( pinInfoB.anker ),
+      )
+    );
   }
 
 
@@ -221,8 +236,11 @@ export default class StickerWallManager {
  /*| _______________
 --*| --- Display ---
 --*/
-  setDisplayMode( modeNameStr, newState, onFinishedFunction ) {
-    this._loadedFolder.setDisplayMode( modeNameStr, newState, onFinishedFunction );
+  startDisplayMode( newDisplayMode /*modeNameStr, newState, onFinishedFunction*/ ) {
+    this._loadedFolder.startDisplayMode( newDisplayMode /*modeNameStr, newState, onFinishedFunction*/ );
+  }
+  cancleDisplayMode( ) {
+    this._loadedFolder.cancleDisplayMode( );
   }
   setDisplayZoom( newZoomFloat ) { // .25 (25%) -> 1.75 (175%)
 

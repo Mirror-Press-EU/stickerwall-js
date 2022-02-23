@@ -4,7 +4,7 @@ export default class CanvasDrawer {
   _element = null;
   _stage = null;
   _backgroundLayer = new Konva.Layer( );
-  _connectionLayer = new Konva.Layer( );
+  _attachmentLayer = new Konva.Layer( );
   _pinLayer = new Konva.Layer( );
   _overLayer = new Konva.Layer( );
   _pressedKeyMapping;
@@ -28,7 +28,7 @@ export default class CanvasDrawer {
     });
     
     this._stage.add(
-      this._connectionLayer, this._pinLayer, this._overLayer
+      this._attachmentLayer, this._pinLayer, this._overLayer
     );
 
     this._bindAllEvents( );
@@ -93,8 +93,8 @@ export default class CanvasDrawer {
     return this;
   }
 
-  drawPinConnection( pinConnectionNode ) {
-    this._connectionLayer.add( pinConnectionNode );
+  drawAttachment( pinConnectionNode ) {
+    this._attachmentLayer.add( pinConnectionNode.getDisplayNode( ) );
 
     return this;
   }

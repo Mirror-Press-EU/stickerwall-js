@@ -19,9 +19,9 @@ export default class CostumEvtHndl extends Instandable {
       console.warn( "AddEventListener require a Function as first Parameter (CallbackFunction)" );
   }
 
-  trigger( param1, param2 ) {
+  trigger( param1, param2, param3, param4 ) {
     if (this._callbacks) this._callbacks.forEach(
-      (curCall) => curCall( param1, param2 )
+      (curCall) => curCall( param1, param2, param3, param4 )
     );
   }
 }

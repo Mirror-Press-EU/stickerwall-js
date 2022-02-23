@@ -28,6 +28,8 @@ import { MDCSlider } from '@material/slider';
 import StickerWallManager from '../libery/sticker-wall';
 import QuoteModifyDialog from './mdl/dialogs/qoute-modify-dialogs';
 import CostumZoomBar from './zoom-bar';
+import PinConnection from '../libery/attachments/connection';
+import ConnectDisplayMode from '../libery/display-modes/connect-display-mode';
 
 export default class Controller {
   controlls;
@@ -72,6 +74,7 @@ export default class Controller {
 
       canvasDisplay: document.getElementById( "canvas-display" ),
       saveFolderButton: getEl( app_buttons, 'save-folder' ),
+      cancleDisplayMode: getEl( app_buttons, 'display-mode-cancle' ),
       
       // --- FORM FIELDS ---
       
@@ -173,11 +176,12 @@ export default class Controller {
     this.bindToolBox( );
 
     // --- Buttons ---
-    this.bindSaveButton( )
+    this.bindSaveButton( );
+    this.bindCancleDisplayModeButton( );
 
     // --- Open Dialogs ---
     this.bindCreateQouteButton( );
-    this.bindCreateConnection( );
+    this.bindCreateConnectionButton( );
   }
 
   bindZoomBar( ) {
@@ -190,6 +194,16 @@ export default class Controller {
         this.stickerWall.getCanDrawer( )
       )
     );
+  }
+
+  bindCancleDisplayModeButton( ) {
+    let scope = this;
+    let cancleDisplayMode = this.controlls.getElement( [ 'cancleDisplayMode' ] );
+
+    if (cancleDisplayMode) 
+      cancleDisplayMode.root.addEventListener(
+        'click', _=> scope.cancleDisplayMode( )
+      )
   }
 
   bindSaveButton( ) {
@@ -257,23 +271,36 @@ export default class Controller {
     );
   }
 
-  onEditorModeFinished(a, b, c) {
-    console.log(a, b, c);
+  onEditorModeFinished(modeNameStr, choosenAnkerList) {
+    console.log(modeNameStr, choosenAnkerList);
+
+    switch (modeNameStr) {
+      case "CONNECT":
+        let pinInfoA = choosenAnkerList[0], pinInfoB = choosenAnkerList[1];
+        this.stickerWall.attachPinConnection( pinInfoA, pinInfoB );
+        break;
+    }
+
+    this.stickerWall.cancleDisplayMode( );
   }
 
-  bindCreateConnection( ) {
+  bindCreateConnectionButton( ) {
     let createConnectionButton = this.controlls.getElement( [ 'toolbox', 'createButtons', 'connection' ] );
 
     if (createConnectionButton)
       createConnectionButton.root.addEventListener( "click", _=> {
         let targetPinFolder = this.stickerWall.getPinFolder( );
+
         if (targetPinFolder.getPinCount( ) >= 2)
-          this.stickerWall.setDisplayMode(
-            "ATTACHING", true, (a, b, c)=> {
-              this.onEditorModeFinished( a, b, c )
-            }
+          this.stickerWall.startDisplayMode(
+
+            new ConnectDisplayMode(
+              (mode, ankerInfo) => this.onEditorModeFinished( mode, ankerInfo )
+            )
+            
           ); // Wechsel alle Pins in den Attaching Mode
         else alert( "Not enough Pins to add a Connection!" );
+
       });
   }
 }

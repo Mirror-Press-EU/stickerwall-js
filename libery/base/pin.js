@@ -6,14 +6,18 @@ import CostumEvtHndl from '../costum-event-handle';
 import AttachOverlay from './attach-overlay';
 //import PinAnkerOverlay from '';
 
-const EVENT_KEYS = [ "onSizesChanged", "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged" ];
+const EVENT_KEYS = [
+  // Shape Events
+  "dragstart", "dragend", "mouseover", "mouseout",
+
+  // Business Events
+  "onSizesChanged", "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged"
+];
 
 export default class Pin extends Instandable {
-  _dataIdentifyer = null;
+  _dataIdentifyer = "UNKNOW";
   _height = 0;
   _width = 0;
-  _posX = 0;
-  _posY = 0;
 
   _container = null;
   _blueprint = null;
@@ -38,14 +42,10 @@ export default class Pin extends Instandable {
     if (!dataIdentifyer) dataIdentifyer = "UNKNOWN";
     
     this.initValues( { x:posX, y:posY } );
-
-    this.bindDefaultEvents( );
     
     this._dataIdentifyer = dataIdentifyer;
     this._height = 0;
     this._width = 256;
-    this._posX = posX;
-    this._posY = posY;
   }
 
   _addShape( newShape, isRelativ=false ) {
@@ -79,32 +79,35 @@ export default class Pin extends Instandable {
     return this;
   }
 
-  _triggerEvent( targetEvtName, param1, param2 ) {
+  _triggerEvent( targetEvtName, param1, param2, param3 ) {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr)
-      targetEvtHndlr.trigger( param1, param2 );
+      targetEvtHndlr.trigger( param1, param2, param3, this );
   }
 
   bindDefaultEvents( ) {
     let scope = this;
 
+    [ "dragstart", "dragend", "mouseover", "mouseout" ].forEach(
+      (curEvtName) => scope._container.on(
+        curEvtName,
+        (a, b, c) => scope._triggerEvent( curEvtName, a, b, c )
+      )
+    );
+
     this.addEventListener( "onFinishDrawing", (w, h) =>
       scope.updateSize( )
     );
 
-    this.addEventListener( "onEditorModeChanged", (newState, folderScope) => {
-      if (newState) {
-        scope._ankerOverlay.performStart(
-          (a,b,c) => console.log( a, b, c )
-        );
-      } else scope._ankerOverlay.performFinish( );
-    }
-      
-    );
+    this.addEventListener( "onValueChanged", _=> {
+      scope.updateSize( );
+    } );
 
-    this.addEventListener( "onValueChanged", _=>
-      scope.updateSize( )
-    );
+    this.addEventListener( "dragend", _=> {
+      let newPos = scope.getPosition( true );
+      scope.values.x = newPos.x;
+      scope.values.y = newPos.y;
+    } );
   }
 
   bindAllEvents( evtFunctionMapping ) {
@@ -132,9 +135,10 @@ export default class Pin extends Instandable {
   drawBasics( beforeFn, afterFn ) {
     if (beforeFn instanceof Function) beforeFn( );
 
+    let pinPos = this.getPosition( );
     this._container = this._addShape(
       new Konva.Group( {
-        x: this.posX, y: this.posY,
+        x: pinPos.x, y: pinPos.y,
         draggable: true
       } ),
       true
@@ -156,6 +160,9 @@ export default class Pin extends Instandable {
     this._ankerOverlay = this._addShape(
       new AttachOverlay( this._width, this._height, this )
     );
+
+    this.bindDefaultEvents( );
+
     this.addEventListener(
       "onSizesChanged", _=> this._ankerOverlay.calibrateAllButtons( )
     );
@@ -215,8 +222,10 @@ export default class Pin extends Instandable {
   getDisplayNode( ) {
     return this._container;
   }
-  getPosition( ) {
-    return this._container.getPosition( );
+  getPosition( guiUpdated=false ) {
+    return (guiUpdated)
+      ? this.getDisplayNode( ).getPosition( )
+      : { x: this.values.x, y: this.values.y };
   }
   getCenterPosition( ) {
     let pos = this.getPosition( );

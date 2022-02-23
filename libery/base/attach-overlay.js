@@ -21,7 +21,7 @@ export default class AttachOverlay extends Konva.Group {
 
     this._targetPinScope = targetPinScope;
 
-    PinUtilitys.anker.getAllPos( ).forEach(
+    PinUtilitys.anker.getAllPosValues( ).forEach(
       (curPos) => this._addAnkerBotton( curPos )
     );
 
@@ -45,10 +45,13 @@ export default class AttachOverlay extends Konva.Group {
   }
 
   _calculatePosition( targetAnker ) {
+    let pinWidth = this._targetPinScope._width;
+    let pinHeight = this._targetPinScope._width;
+
     // Simple Positons
-    let targetPos = PinUtilitys.anker.getCornerPos(
-      this._targetPinScope,
-      targetAnker
+    let targetPos = PinUtilitys.anker.getCornerOffsetPos(
+      targetAnker,
+      pinWidth, pinHeight
     )
     
     let paddingPos = PinUtilitys.anker.getPaddindCornerPos(
@@ -59,28 +62,11 @@ export default class AttachOverlay extends Konva.Group {
     return paddingPos;
   }
 
-  _onAnkerBottonClicked( ankerStr, newBtnCheckState, targetButton ) {
+  _onAnkerBottonClicked( ankerStr, newBtnCheckState, targetButton, isTriggerEvent=true ) {
+    this._setButtonState( ankerStr, newBtnCheckState, targetButton );
 
-    // Update Memory
-    if (newBtnCheckState) this._modeConfigs.choosenButtons.push( ankerStr );
-    else {
-      let targetIndex = this._modeConfigs.choosenButtons.indexOf( ankerStr );
-      this._modeConfigs.choosenButtons.splice( targetIndex, 1 );
-    }
-
-    // Update Check Styling
-    targetButton.fill(
-      "rgba( 255, 160, 160, " + (newBtnCheckState ? ".75" : ".5") + " )"
-    );
-
-    /*if (newCheckState) {
-      this._modeConfigs.choosenButtons.push( ankerStr );
-    } else {
-      let targetIndex = this._modeConfigs.choosenButtons.indexOf( ankerStr );
-      this._modeConfigs.choosenButtons.slice( targetIndex, 1 );
-    }*/
-
-    this._modeConfigs.onChoosenChangedCallback( ankerStr, newBtnCheckState, targetButton );
+    if (isTriggerEvent)
+      this._modeConfigs.onChoosenChangedCallback( this, ankerStr, newBtnCheckState, targetButton );
   }
   
   _addAnkerBotton( ankerPosStr ) {
@@ -124,6 +110,26 @@ export default class AttachOverlay extends Konva.Group {
         anker: ankerPosStr
       };
     }
+  }
+
+  _setButtonState( ankerStr, newState, targetButton ) {
+    // Update Memory
+    if (newState) this._modeConfigs.choosenButtons.push( ankerStr );
+    else {
+      let targetIndex = this._modeConfigs.choosenButtons.indexOf( ankerStr );
+      this._modeConfigs.choosenButtons.splice( targetIndex, 1 );
+    }
+
+    // Update Check Styling
+    targetButton.fill(
+      "rgba( 255, 160, 160, " + (newState ? ".75" : ".5") + " )"
+    );
+  }
+
+  _setAllButtonStates( newState ) {
+    PinUtilitys.anker.getAllPosValues( ).forEach(
+      (curPos) => this._setButtonState( curPos, newState, this._ankerButtons[ curPos ] )
+    );
   }
 
   performStart( onChoosenChangedCallback ) {

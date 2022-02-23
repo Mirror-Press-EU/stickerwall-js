@@ -7,6 +7,7 @@ export default class PinFolder {
   _pins = { };
   _attachments = [ ];
   _events = { };
+  _displayMode;
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -18,12 +19,25 @@ export default class PinFolder {
 --*/
 
   addPinNode( pinInstanceObj ) {
+    let scope = this;
     let pinID = pinInstanceObj.getID( );
 
     if (!this._pins[ pinID ]) {
       // Events and Handling
       //pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
       //this._pinToolbar.observePinNode( pinInstanceObj ) // @TODO: PinToolbar
+      pinInstanceObj.addEventListener( "onEditorModeChanged", (newState, a, b, pinScope ) => {
+
+        if (newState) pinScope._ankerOverlay.performStart(
+
+          (attOverlayScope, targetPos, newState) => {
+            if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
+          }
+
+        );
+        else pinInstanceObj._ankerOverlay.performFinish( );
+        
+      } );
 
       // Storage
       this._pins[ pinID ] = pinInstanceObj;
@@ -32,11 +46,7 @@ export default class PinFolder {
     return this;
   }
   
-  addAttachment( newAttachment, ankerDirectionList ) {
-    ankerDirectionList.forEach(
-      (curAnker) => curAnker.ownerPin.addAttachment( newAttach )
-    );
-
+  addAttachment( newAttachment ) {
     this._attachments.push( newAttachment );
   }
 
@@ -119,7 +129,7 @@ export default class PinFolder {
 
         if (newNode) {
           newNode.fromSerialized( pinJsonObj );
-          scope.pinFolder.addPin( newNode );
+          scope.addPinNode( newNode );
         } else console.warn( "Error in Pin serialized routine..." );
       } );
     }
@@ -203,44 +213,66 @@ export default class PinFolder {
     );
   }
 
-  __onDisplayModeNameStr = null;
-  __onDisplayModeFinishedFn = _=> { };
-  __onDisplayModeChoosenPins = { };
-  onDisplayModeValueChanged( targetPin, newState ) {
-    let targetSlot = this.__onDisplayModeChoosenPins[ targetPin.id ];
+  /*onDisplayModeValueChanged( targetPinAttachOver, pos, newState ) {
+    let targetPin = targetPinAttachOver.pinInstance;
+    let targetPinID = targetPin.getID( );
+    let targetSlot = this.__onDisplayModeChoosenPins[ targetPinID ];
 
     if (targetSlot === undefined && newState) {
-      this.__onDisplayModeChoosenPins[ targetPin.id ] = targetPin;
-    } else delete this.__onDisplayModeChoosenPins[ targetPin.id ];
+      this.__onDisplayModeChoosenPins[ targetPinID ] = {
+        pin: targetPin,
+        anker: pos,
+        index: this.__onDisplayModePinIndex++
+      };
+    } else delete this.__onDisplayModeChoosenPins[ targetPinID ];
 
     let count = 0;
     for (let i in this.__onDisplayModeChoosenPins) count++;
 
     if (count >= 2) {
-      this.__onDisplayModeFinishedFn(  );
+      this.__onDisplayModeFinishedFn(
+        this.__onDisplayModeNameStr,
+        this.__onDisplayModeChoosenPins
+      );
       this.setDisplayMode( "", false );
     }
-  }
-  setDisplayMode( modeNameStr, newState, onFinishedFunction ) {
-    let canvas = document.getElementById( "canvas-display" );
+  }*/
+  startDisplayMode( newDisplayMode ) {
+    if (this._displayMode) this._displayMode.cancle( );
 
-    if (newState) {
-      canvas.classList.add( "editor-modus-enabled" );
+    if (newDisplayMode.instanceOf( "SimpleDisplayMode" )) {
+      this._displayMode = newDisplayMode;
+      newDisplayMode.start( );
+      
+      this._triggerAllPinsEvent( "onEditorModeChanged", true );
+    }
+
+    /*if (newState) {
+      document.body.classList.add( "custom-can-display--display-mode---open" );
 
       this.__onDisplayModeNameStr = modeNameStr;
       this.__onDisplayModeFinishedFn = onFinishedFunction;
-  
-      this._triggerAllPinsEvent(
-        "onEditorModeChanged", newState, 
-        (a, b, c) => this.onDisplayModeValueChanged( a, b, c )
-      );
     }
     else {
-      canvas.classList.remove( "editor-modus-enabled" );
+      document.body.classList.remove( "custom-can-display--display-mode---open" );
+
+      onFinishedFunction(
+        this.__onDisplayModeNameStr,
+        this.__onDisplayModeChoosenPins
+      );
 
       this.__onDisplayModeNameStr = null;
       this.__onDisplayModeFinishedFn = _=> { };
       this.__onDisplayModeChoosenPins = { };
     }
+  
+    this._triggerAllPinsEvent( "onEditorModeChanged", newState );*/
+  }
+
+  cancleDisplayMode( ) {
+    this._displayMode.cancle( );
+    this._displayMode = null;
+    
+    this._triggerAllPinsEvent( "onEditorModeChanged", false );
   }
 }

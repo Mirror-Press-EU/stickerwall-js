@@ -17,14 +17,35 @@ export default {
       left: 'LEFT', leftTop: 'LEFT-TOP',
       center: 'CENTER'
     },
-    getAllPos( ) {
-      let resultList = [ ]
-      for (let p in this.positions) resultList.push( p );
+
+    getPosValue( posKey ) {
+      return this.positions[ posKey ];
+    },
+
+    validatePositionString( posStr ) {
+      return this.getAllPosValues( ).indexOf( posStr ) >= 0;
+    },
+
+    getAllPosKeys( ) {
+      let resultList = [ ];
+      for (let k in this.positions) resultList.push( k );
+      return resultList;
+    },
+    getAllPosValues( ) {
+      let resultList = [ ];
+      for (let k in this.positions)
+        resultList.push( this.positions[ k ] );
+
       return resultList;
     },
     getCornerOffsetPos( ankerPosKey, w, h ) {
       let POS = this.positions;
       let returnPos = { x:0, y:0 };
+
+      if (typeof ankerPosKey !== "string") {
+        if (ankerPosKey.instanceOf && ankerPosKey.instanceOf( "attachment-anker" ))
+          ankerPosKey = ankerPosKey.getPosKey( )
+      }
 
       ankerPosKey = ankerPosKey.toUpperCase( );
       
@@ -49,9 +70,9 @@ export default {
       let pinWidth = pinInstance.getWidth( );
       let pinHeight = pinInstance.getHeight( );
 
-      let finalReturnPos = this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
+      let offsetPos = this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
     
-      return finalReturnPos;
+      return this.addPos( returnPos, offsetPos );
     },
     getPaddindCornerPos( ankerPos, paddingValue, defaultPos=null) {
       let POS = this.positions;

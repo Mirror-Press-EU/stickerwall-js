@@ -9,12 +9,47 @@ body {
     min-height: 4rem;
     border-radius: 50%;
   }
+  
+  #display-mode-cancle {
+    position: fixed;
+    top: .75rem;
+    left: .75rem;
+    border-radius: 0.75rem 0.25rem;
+    border-radius: 0.5rem;
+    padding: .5rem .75rem .5rem .75rem;
+    font-weight: 100;
+    height: 2.75rem;
+    overflow: hidden;
+
+    .material-icons {
+      font-size: 2rem;
+      width: 1.5rem;
+      height: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 4px;
+      text-align: center;
+      padding-top: 1px;
+    }
+  }
+
+  &.custom-can-display--display-mode---open {
+    #canvas-display {
+      background: #f7f2ff;
+    }
+
+    #display-mode-cancle {
+      display: flex;
+    }
+  }
 
   .costum-zoom-bar {
     display: flex;
     position: absolute;
     top: -7rem;
-    right: 2rem;
+    right: 1.125rem;
     width: 75vw;
     max-width: 32rem;
     padding: 2rem 1rem 0rem 1rem;
@@ -30,7 +65,7 @@ body {
     }
     
     &.is-open {
-      top: 1rem;
+      top: 1.125rem;
 
       .costum-zoom-bar--container {
         opacity: 1;
@@ -104,17 +139,16 @@ body {
     .costum-zoom-bar--button {
       position: absolute;
       right: 0;
-      top: 100%;
+      top: calc( 100% + 0.75rem );
       width: 8rem;
 
       font-size: 1.875rem;
       line-height: 1.5rem;
       padding-top: 0.75rem;
       padding-bottom: 0.5rem;
-
-      border: .137rem solid #6200ee;
+      border: 0.137rem solid #6200ee;
       border-radius: 1rem;
-      background: rgba(255, 255, 255, .66);
+      background: rgba(255, 255, 255, 0.66);
 
       margin: 2rem 0 0 0;
       overflow: hidden;

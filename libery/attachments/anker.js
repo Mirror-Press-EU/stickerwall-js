@@ -1,3 +1,4 @@
+import PinUtils from "../base/pin.utils";
 import Instandable from "../instandable";
 
 const POS_MAPPING = {
@@ -33,14 +34,10 @@ export default class AttachmentAnker extends Instandable {
     return this._position;
   }
 
-  validatePositionString( posStr ) {
-    return this.getKeys( ).indexOf( posStr ) >= 0;
-  }
-
   setPosition( posStr ) {
-    posStr = posStr.toLowerCase( );
+    posStr = posStr.toUpperCase( );
 
-    if (this.validatePositionString( posStr ))
+    if (PinUtils.anker.validatePositionString( posStr ))
       this._position = posStr;
   }
 
