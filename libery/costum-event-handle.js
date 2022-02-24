@@ -3,6 +3,8 @@ import Instandable from './instandable';
 export default class CostumEvtHndl extends Instandable {
   _callbacks = [ ];
   constructor( defaultCallbackList ) {
+    super( );
+
     if (defaultCallbackList instanceof Function)
       this.add( defaultCallbackList );
     if (defaultCallbackList instanceof Array)
@@ -11,15 +13,15 @@ export default class CostumEvtHndl extends Instandable {
       console.warn( "CostumEvtHndl Constructor require a Function/Array<Function> as first Parameter (CallbackFunction)" );
   }
   add( callFn ) {
-    if (this._callbacks instanceof Function)
+    if (callFn instanceof Function)
       this._callbacks.push( callFn );
     else
       console.warn( "AddEventListener require a Function as first Parameter (CallbackFunction)" );
   }
 
-  trigger( param1, param2 ) {
+  trigger( param1, param2, param3, param4 ) {
     if (this._callbacks) this._callbacks.forEach(
-      (curCall) => curCall( param1, param2 )
+      (curCall) => curCall( param1, param2, param3, param4 )
     );
   }
 }

@@ -6,9 +6,17 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
   </head>
-  <body>
+  <body class="">
     <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="canvas-display"></div>
+
+    <button id="display-mode-cancle" class="mdc-button mdc-button--icon-leading">
+      <span class="mdc-button__ripple"></span>
+      <i class="material-icons mdc-button__icon material-icons-round" aria-hidden="true"
+        >disabled_by_default</i
+      >
+      <span class="mdc-button__label">Cancle</span>
+    </button>
 
     <button id="save-folder" class="overlay-button mdc-button mdc-icon-button material-icons mdc-button--raised">
       <div class="mdc-icon-button__ripple"></div>
@@ -21,17 +29,17 @@
         <button id="dialog--mod-pin-qoute--open" class="mdc-button mdc-button--icon-leading">
           <span class="mdc-button__ripple"></span>
           <i class="material-icons mdc-button__icon" aria-hidden="true">format_quote</i>
-          <span class="mdc-button__label">Zitieren</span>
+          <span class="mdc-button__label">Quote</span>
         </button>
         <button id="dialog--mod-pin-notice--open" class="mdc-button mdc-button--icon-leading">
           <span class="mdc-button__ripple"></span>
           <i class="material-icons mdc-button__icon" aria-hidden="true">assignment</i>
-          <span class="mdc-button__label">Notizen</span>
+          <span class="mdc-button__label">Notice</span>
         </button>
         <button id="display-mode--add-connection--open" class="mdc-button mdc-button--icon-leading">
           <span class="mdc-button__ripple"></span>
           <i class="material-icons mdc-button__icon" aria-hidden="true">share</i>
-          <span class="mdc-button__label">Verbinden</span>
+          <span class="mdc-button__label">Connect</span>
         </button>
 
       </div>
