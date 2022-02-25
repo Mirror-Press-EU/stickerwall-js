@@ -1,11 +1,11 @@
-
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged" ];
+import CustomEvtHndl from "../custom-event-handle";
+import CustomEvtUtils from "../custom-event-handle.utils";
+const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged" ];
 
 import PinUtilitys from '../base/pin.utils';
 import BasisPin from '../base/pin';
 import AttachmentAnker from './anker';
 import Instandable from '../instandable';
-import CostumEvtHndl from '../costum-event-handle';
 
 /*
  *  Verbindet PIN & POS & ATTACHMENTS
@@ -28,15 +28,7 @@ export default class Attachment extends Instandable {
   }
 
   defineEvents( newEventKeys ) {
-    if (typeof newEventKeys === "object") {
-      if (newEventKeys instanceof Array) {
-
-        newEventKeys.forEach(
-          (curKey) => this._events[curKey] = new CostumEvtHndl( )
-        );
-
-      } else this._events = Object.assign( this._events, newEventKeys );
-    }
+    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
   addAnker( targetPin, ankerObj ) {

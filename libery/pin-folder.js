@@ -1,7 +1,10 @@
 import PinLinkQoute from "./pins/link-qoute";
 import PinNotice from "./pins/notice";
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
+import CustomEvtHndl from "./custom-event-handle";
+import CustomEvtUtils from "./custom-event-handle.utils";
+
+const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
   _pins = { };
@@ -18,28 +21,50 @@ export default class PinFolder {
 --*| --- ADD ---
 --*/
 
+  onPinNodeClicked( targetPin ) {
+    if (this._displayMode)
+      if (!this._displayMode.eventIsAllowed( "onFocusChanged" ))
+        return;
+
+    let newState = targetPin.toggleSelected( );
+    this._triggerPinEvent( targetPin, "onFocusChanged", newState );
+  }
+
   addPinNode( pinInstanceObj ) {
     let scope = this;
     let pinID = pinInstanceObj.getID( );
 
     if (!this._pins[ pinID ]) {
-      // Events and Handling
+      // --- Events and Handling ---
       //pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
       //this._pinToolbar.observePinNode( pinInstanceObj ) // @TODO: PinToolbar
-      pinInstanceObj.addEventListener( "onEditorModeChanged", (newState, a, b, pinScope ) => {
+      pinInstanceObj.addEventListener(
 
-        if (newState) pinScope._ankerOverlay.performStart(
+        "click",
+        _=> scope.onPinNodeClicked( pinInstanceObj )
 
-          (attOverlayScope, targetPos, newState) => {
-            if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
-          }
+      ).addEventListener(
 
-        );
-        else pinInstanceObj._ankerOverlay.performFinish( );
-        
-      } );
+        "onEditorModeChanged",
+        (newState, a, b, pinScope ) => {
+          if (newState) pinScope._ankerOverlay.performStart(
 
-      // Storage
+            (attOverlayScope, targetPos, newState) => {
+              if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
+            }
+
+          );
+          else pinInstanceObj._ankerOverlay.performFinish( );
+        }
+
+      )/*.addEventListener(
+
+        "onFocusChanged",
+        (targetPin, newState) => scope.setPinFocus( targetPin, newState )
+
+      )*/;
+
+      // --- Storage ---
       this._pins[ pinID ] = pinInstanceObj;
     } else console.log( "ID Kollision! Fehler bei Key Regestrierung!" );
 
@@ -184,8 +209,7 @@ export default class PinFolder {
  --*/
 
   defineEvents( newEventKeys ) {
-    if (typeof { } === "object" && !(newEventKeys instanceof Array))
-    this._events = Object.assign( this._events, newEventKeys );
+    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
   addEventListener( targetEvtName, callFn ) {
@@ -213,30 +237,12 @@ export default class PinFolder {
     );
   }
 
-  /*onDisplayModeValueChanged( targetPinAttachOver, pos, newState ) {
-    let targetPin = targetPinAttachOver.pinInstance;
-    let targetPinID = targetPin.getID( );
-    let targetSlot = this.__onDisplayModeChoosenPins[ targetPinID ];
 
-    if (targetSlot === undefined && newState) {
-      this.__onDisplayModeChoosenPins[ targetPinID ] = {
-        pin: targetPin,
-        anker: pos,
-        index: this.__onDisplayModePinIndex++
-      };
-    } else delete this.__onDisplayModeChoosenPins[ targetPinID ];
 
-    let count = 0;
-    for (let i in this.__onDisplayModeChoosenPins) count++;
+  /*| ______________________
+ --*| --- Display Methods ---
+ --*/
 
-    if (count >= 2) {
-      this.__onDisplayModeFinishedFn(
-        this.__onDisplayModeNameStr,
-        this.__onDisplayModeChoosenPins
-      );
-      this.setDisplayMode( "", false );
-    }
-  }*/
   startDisplayMode( newDisplayMode ) {
     if (this._displayMode) this._displayMode.cancle( );
 
@@ -246,27 +252,6 @@ export default class PinFolder {
       
       this._triggerAllPinsEvent( "onEditorModeChanged", true );
     }
-
-    /*if (newState) {
-      document.body.classList.add( "custom-can-display--display-mode---open" );
-
-      this.__onDisplayModeNameStr = modeNameStr;
-      this.__onDisplayModeFinishedFn = onFinishedFunction;
-    }
-    else {
-      document.body.classList.remove( "custom-can-display--display-mode---open" );
-
-      onFinishedFunction(
-        this.__onDisplayModeNameStr,
-        this.__onDisplayModeChoosenPins
-      );
-
-      this.__onDisplayModeNameStr = null;
-      this.__onDisplayModeFinishedFn = _=> { };
-      this.__onDisplayModeChoosenPins = { };
-    }
-  
-    this._triggerAllPinsEvent( "onEditorModeChanged", newState );*/
   }
 
   cancleDisplayMode( ) {
@@ -274,5 +259,18 @@ export default class PinFolder {
     this._displayMode = null;
     
     this._triggerAllPinsEvent( "onEditorModeChanged", false );
+  }
+
+  clearPinFocus( ) {
+    this.getAllPins( ).forEach(
+      (curPin) => curPin.setFocus( false )
+    );
+  }
+
+  setPinFocus( targetPin, newState ) {
+    this.clearPinFocus( );
+
+    if (newState)
+      targetPin.setFocus( true );
   }
 }

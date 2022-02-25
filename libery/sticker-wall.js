@@ -1,3 +1,6 @@
+import CustomEvtHndl from "./custom-event-handle";
+import CustomEvtUtils from "./custom-event-handle.utils";
+
 import PinFolder from './pin-folder';
 import PinLinkQoute from './pins/link-qoute';
 import PinNotice from './pins/notice';
@@ -6,7 +9,7 @@ import CanvasDrawer from './can-drawer';
 import PinConnection from './attachments/connection';
 import AttachmentAnker from './attachments/anker';
 
-const EVENT_KEYS = [ "onScopeChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
+const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class StickerWallManager {
   _dropAnimation = null;
@@ -94,8 +97,7 @@ export default class StickerWallManager {
 --*/
 
   defineEvents( newEventKeys ) {
-    if (typeof { } === "object" && !(newEventKeys instanceof Array))
-    this._events = Object.assign( this._events, newEventKeys );
+    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
   onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }

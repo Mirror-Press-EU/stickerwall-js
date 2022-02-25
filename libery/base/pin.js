@@ -1,17 +1,21 @@
 import Konva from 'konva';
 
+import CustomEvtHndl from "../custom-event-handle";
+import CustomEvtUtils from "../custom-event-handle.utils";
+
 import PinUtilitys from './pin.utils';
+import __DEFAULT_CONFIG__ from './pin.config';
+
 import Instandable from '../instandable';
-import CostumEvtHndl from '../costum-event-handle';
 import AttachOverlay from './attach-overlay';
 //import PinAnkerOverlay from '';
 
 const EVENT_KEYS = [
   // Shape Events
-  "dragstart", "dragend", "mouseover", "mouseout",
+  "dragstart", "dragend", "mouseover", "mouseout", "click",
 
   // Business Events
-  "onSizesChanged", "onScopeChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged"
+  "onSizesChanged", "onFocusChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged"
 ];
 
 export default class Pin extends Instandable {
@@ -27,6 +31,7 @@ export default class Pin extends Instandable {
   _contentShapes = [ ];
 
   pinType;
+  _guiFocus = false;
   values = { };
   _attachments = [ ];
 
@@ -46,6 +51,11 @@ export default class Pin extends Instandable {
     this._dataIdentifyer = dataIdentifyer;
     this._height = 0;
     this._width = 256;
+
+    this.addEventListener(
+      "onFocusChanged",
+      (newState) => this._displayBlueprint( newState )
+    );
   }
 
   _addShape( newShape, isRelativ=false ) {
@@ -61,15 +71,7 @@ export default class Pin extends Instandable {
   }
 
   defineEvents( newEventKeys ) {
-    if (typeof newEventKeys === "object") {
-      if (newEventKeys instanceof Array) {
-
-        newEventKeys.forEach(
-          (curKey) => this._events[curKey] = new CostumEvtHndl( )
-        );
-
-      } else this._events = Object.assign( this._events, newEventKeys );
-    }
+    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
   addEventListener( targetEvtName, callFn ) {
@@ -88,7 +90,8 @@ export default class Pin extends Instandable {
   bindDefaultEvents( ) {
     let scope = this;
 
-    [ "dragstart", "dragend", "mouseover", "mouseout" ].forEach(
+    //CustomEvtUtils.prototype.mappingEvtsToCstmEvts( this, [ "dragstart", "dragend", "mouseover", "mouseout", "click" ] );
+    [ "dragstart", "dragend", "mouseover", "mouseout", "click" ].forEach(
       (curEvtName) => scope._container.on(
         curEvtName,
         (a, b, c) => scope._triggerEvent( curEvtName, a, b, c )
@@ -144,8 +147,9 @@ export default class Pin extends Instandable {
       true
     );
     this._blueprint = this._addShape(
-      new Konva.Line( {
-        points: [ 0, 0 ],
+      new Konva.Rect( {
+        x: -8, y: -8,
+        cornerRadius: 16,
         stroke: 'blue', strokeWidth: 2, lineJoin: 'round', dash: [ 4, 6 ],
         opacity: 0.0
       } ),
@@ -199,18 +203,12 @@ export default class Pin extends Instandable {
     this._height = this.getChildrenHeight( );
     this._width = this.getChildrenWidth( );
 
-    let h = this._height + 16;
+    let h = this._height + 24;
     let w = this._width;
 
     const bPO = 8;
-    this._blueprint.setPoints([
-    //  X       Y
-      -bPO,   -bPO,   // Left/Top (start)
-    w +bPO,   -bPO,   // Rechts/Top
-    w +bPO, h +bPO*2, // Rechts/Bottom
-      -bPO, h +bPO*2, // Left/Bottom
-      -bPO,   -bPO    // Left/Top (end)
-    ]);
+    this._blueprint.setWidth( w + ( 2*bPO ) );
+    this._blueprint.setHeight( h + ( 2*bPO ) );
 
     this._triggerEvent(
       "onSizesChanged", // EvtName
@@ -257,6 +255,17 @@ export default class Pin extends Instandable {
   getHeight( ) { return this._height; }
   getWidth( ) { return this._width; }
 
+  isSelected( ) { return this._guiFocus; }
+
+  setFocus( newState ) {
+    this._guiFocus = newState;
+    //this._triggerEvent( "onFocusChanged", newState, this );
+  }
+  toggleSelected( ) {
+    this._guiFocus = !this._guiFocus;
+    return this._guiFocus;
+  }
+
   serializeToJSON( valuesObj={ } ) {
     let vPos = this._container.getPosition( );
     let defaultValues = { x: vPos.x, y: vPos.y }
@@ -276,5 +285,20 @@ export default class Pin extends Instandable {
     }
 
     return this;
+  }
+
+  // --- Display Methods ---
+  
+  _displayBlueprint( newState ) {
+    let blueprintOpacity = "0.0";
+    let containerOpacity = __DEFAULT_CONFIG__.styles.opacity.default;
+
+    if (newState) {
+      blueprintOpacity = __DEFAULT_CONFIG__.styles.opacity.default;
+      containerOpacity = __DEFAULT_CONFIG__.styles.opacity.glasses;
+    }
+    
+    this._blueprint.setOpacity( blueprintOpacity );
+    this._container.setOpacity( containerOpacity );
   }
 }

@@ -7,6 +7,7 @@ export default class BaseModifyDialog extends MDCDialog {
   _elements = { buttons:{ apply:null } };
   _resultInstance = null;
   _mode = null;
+  _allowedEvents = [ ];
 
   constructor( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope ) {
     super( containerDomEl );
@@ -81,6 +82,10 @@ export default class BaseModifyDialog extends MDCDialog {
     this._clearFormularFields( );
     this._attrValues = { };
     this._declareFormValues( this._attrList );
+  }
+
+  eventIsAllowed( targetEventName ) {
+    return this._allowedEvents.indexOf( targetEventName ) >= 0;
   }
   
   // Override Methode

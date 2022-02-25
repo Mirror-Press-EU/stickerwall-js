@@ -1,3 +1,4 @@
+import PinLinkQoute from "../../../libery/pins/link-qoute";
 import BaseDialog from "./base-modify-dialog";
 
 export default class QouteModifyDialog extends BaseDialog {
@@ -6,7 +7,7 @@ export default class QouteModifyDialog extends BaseDialog {
   }
   
   initNewValues( ) {
-    this._resultInstance = this._pinManager.createPinLinkQuote( );
+    this._resultInstance = new PinLinkQoute( );
   }
   
   // Overriding Methods
