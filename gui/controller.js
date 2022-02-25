@@ -73,6 +73,7 @@ export default class Controller {
       collection: { app_buttons, app_textFields, app_slider },
 
       canvasDisplay: document.getElementById( "canvas-display" ),
+      canvasImagePattern: document.getElementById( "can-dis-img-pattern"),
       saveFolderButton: getEl( app_buttons, 'save-folder' ),
       cancleDisplayMode: getEl( app_buttons, 'display-mode-cancle' ),
       

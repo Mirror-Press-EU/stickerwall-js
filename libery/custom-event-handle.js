@@ -1,6 +1,6 @@
 import Instandable from './instandable';
 
-export default class CostumEvtHndl extends Instandable {
+export default class CustomEvtHndl extends Instandable {
   _callbacks = [ ];
   constructor( defaultCallbackList ) {
     super( );
@@ -10,7 +10,7 @@ export default class CostumEvtHndl extends Instandable {
     if (defaultCallbackList instanceof Array)
       this._callbacks = defaultCallbackList;
     else if (defaultCallbackList != null)
-      console.warn( "CostumEvtHndl Constructor require a Function/Array<Function> as first Parameter (CallbackFunction)" );
+      console.warn( "CustomEvtHndl Constructor require a Function/Array<Function> as first Parameter (CallbackFunction)" );
   }
   add( callFn ) {
     if (callFn instanceof Function)

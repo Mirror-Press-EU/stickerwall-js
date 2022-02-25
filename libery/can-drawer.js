@@ -24,7 +24,8 @@ export default class CanvasDrawer {
     this._stage = new Konva.Stage({
       container: canvasDomIdStr,   // id of container <div>
       width: window.innerWidth,
-      height: window.innerHeight
+      height: window.innerHeight,
+      draggable: true,
     });
     
     this._stage.add(
@@ -53,7 +54,7 @@ export default class CanvasDrawer {
       };
 
       // how to scale? Zoom in? Or zoom out?
-      let direction = e.evt.deltaY > 0 ? 1 : -1;
+      let direction = e.evt.deltaY > 0 ? 1.25 : -1.25;
 
       // when we zoom on trackpad, e.evt.ctrlKey is true
       // in that case lets revert direction
