@@ -1,7 +1,7 @@
 const autoprefixer = require('autoprefixer');
 
 var config = {
-  entry: ['./app.scss', './app.js'],
+  entry: ['./app.scss', './app.ts'],
   output: { filename: 'bundle.js' },
   module: {
     rules: [
@@ -41,12 +41,19 @@ var config = {
           }
         ]
       }, {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      }, {
         test: /\.js$/,
         use: 'babel-loader',
         exclude: /node_modules/
       }
     ]
   },
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js'],
+  }
 };
 
 module.exports = (env, argv) => {
