@@ -21,6 +21,7 @@ export default class StickerWallManager {
   _canDrawer:CanvasDrawer;
   _loadedFolder:PinFolder;
   _pinToolbar:any;
+  _events:any = { };
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -91,7 +92,7 @@ export default class StickerWallManager {
     return this._loadedFolder;
   }
 
-  getNextRandomID( prefix:any ) : number {
+  getNextRandomID( prefix:any ) : string {
     return this._loadedFolder.getNextRandomID( prefix );
   }
 
@@ -100,8 +101,22 @@ export default class StickerWallManager {
 --*| --- EVENT HANDLE ---
 --*/
 
-  defineEvents( newEventKeys:any ) : void {
-    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
+
+  defineEvent( newEventKey:string ) {
+    this._events[newEventKey] = new CustomEvtHndl( )
+  }
+
+  defineEvents( newEventKeys:any ) {
+    let scope = this;
+    if (typeof newEventKeys === "object") {
+      if (newEventKeys instanceof Array) {
+
+        newEventKeys.forEach(
+          (curKey:string) => scope.defineEvent( curKey )
+        );
+
+      } else scope._events = Object.assign( scope._events, newEventKeys );
+    }
   }
 
   /*onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }
@@ -177,10 +192,10 @@ export default class StickerWallManager {
     this.addAttachment(
       new PinConnection(
         pinInfoA.pin,
-        new AttachmentAnker( pinInfoA.anker ),
+        pinInfoA.anker,
 
         pinInfoB.pin,
-        new AttachmentAnker( pinInfoB.anker ),
+        pinInfoB.anker,
       )
     );
   }
@@ -228,7 +243,7 @@ export default class StickerWallManager {
   ) : PinNotice {
     let newNode = new PinNotice(
       x, y, id,
-      title, text
+      { title, text }
     )
 
     this.addPinNode( newNode );

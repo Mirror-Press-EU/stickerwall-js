@@ -1,13 +1,13 @@
 export default class Instandable {
-  _extensionsList = [ ];
+  _extensionsList:string[] = [ ];
 
   constructor( ) { }
 
-  _extAdd( className ) {
+  _extAdd( className:any ) {
     this._extensionsList.push( className );
   }
 
-  instanceOf( otherClass ) {
+  instanceOf( otherClass:any ) {
     if (typeof otherClass === "object") {
       if (otherClass._extensionsList) {
         if (this._extensionsList[0] === otherClass._extensionsList[0]) {

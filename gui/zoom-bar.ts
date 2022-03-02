@@ -1,14 +1,16 @@
-export default class CostumZoomBar {
-  _controlls = { };
-  _canDrawer;
+import CanvasDrawer from "../libery/can-drawer";
 
-  constructor( controllsMapping, canDrawer ) {
+export default class CostumZoomBar {
+  _controlls:any = { };
+  _canDrawer:CanvasDrawer;
+
+  constructor( controllsMapping:any, canDrawer:CanvasDrawer ) {
     this._controlls = controllsMapping;
     this._canDrawer = canDrawer;
 
-    let zoomBarContainer = controllsMapping.container;
-    let zoomBarResetZoomButton = controllsMapping.displayResetZoomButton;
-    let zoomBarValueSlider = controllsMapping.slider;
+    let zoomBarContainer:any = controllsMapping.container;
+    let zoomBarResetZoomButton:any = controllsMapping.displayResetZoomButton;
+    let zoomBarValueSlider:any = controllsMapping.slider;
 
     if (zoomBarContainer
     && zoomBarResetZoomButton
@@ -16,16 +18,16 @@ export default class CostumZoomBar {
     ) {
       controllsMapping.instance = this;
 
-      canDrawer.eventHandle.onWheelZoom = ( newScale, newPos ) => {
+      canDrawer.eventHandle.onWheelZoom = ( newScale:number, newPos:number ) => {
         if (zoomBarContainer.classList.contains( "is-open" )) {
           zoomBarContainer.classList.remove( "is-open" );
           zoomBarResetZoomButton.root.classList.remove( "mdc-button--raised" );
         }
 
-        zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" ).innerText = parseInt(newScale *100) + "%";
+        zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" ).innerText = (newScale * 100) + "%";
       };
 
-      zoomBarResetZoomButton.root.addEventListener( 'click', _=> {
+      zoomBarResetZoomButton.root.addEventListener( 'click', ()=> {
         if (zoomBarContainer.classList.contains( "is-open" )) {
           
           zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" ).innerText = "100%";
@@ -38,30 +40,32 @@ export default class CostumZoomBar {
         zoomBarResetZoomButton.root.classList.toggle( "mdc-button--raised" );
       } );
 
-      canDrawer.addEventListener( 'click',  _=> {
+      canDrawer.addEventListener( 'click',  ()=> {
         zoomBarContainer.classList.remove( "is-open" );
         zoomBarResetZoomButton.root.classList.remove( "mdc-button--raised" );
       } );
 
-      let onSliderChangeHandle = (event) => {
-        let targetInput = event.target.querySelector( "input" );
-        let targetTextDisplay = zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" );
+      let onSliderChangeHandle = (event:any) => {
+        let targetInput:HTMLInputElement = event.target.querySelector( "input" );
+        let targetTextDisplay:HTMLElement = zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" );
 
         if (targetTextDisplay
         &&  targetInput && targetInput.value !== undefined
         ) {
-          let zoomValStr = targetInput.value;
-          let zoomVal = Number( (zoomValStr.length === 2)
+          let zoomValStr:string = targetInput.value;
+          let zoomVal:number = Number( (zoomValStr.length === 2)
             ? "0." + zoomValStr
             : "1." + zoomValStr.substr( 1 )
           );
           canDrawer.setZoom( zoomVal );
           targetTextDisplay.innerText = zoomValStr + "%";
         }
-      }
-      'click, dragend, touchend, touchmove'.split(', ')
-      .forEach(
-        (evtName) => zoomBarContainer.addEventListener( evtName, onSliderChangeHandle )
+      };
+
+      ['click', 'dragend', 'touchend', 'touchmove'].forEach(
+        (evtName:string) => zoomBarContainer.addEventListener(
+          evtName, onSliderChangeHandle
+        )
       );
     }
   }

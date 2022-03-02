@@ -1,24 +1,27 @@
 import Konva from 'konva';
+import Pin from './base/pin';
 
 export default class CanvasDrawer {
-  _element = null;
-  _stage = null;
-  _backgroundLayer = new Konva.Layer( );
-  _attachmentLayer = new Konva.Layer( );
-  _pinLayer = new Konva.Layer( );
-  _overLayer = new Konva.Layer( );
-  _pressedKeyMapping;
-  _displayMode = {
+  _element:any = null;
+
+  _stage:Konva.Stage = null;
+  _backgroundLayer:Konva.Layer = new Konva.Layer( );
+  _attachmentLayer:Konva.Layer = new Konva.Layer( );
+  _pinLayer:Konva.Layer = new Konva.Layer( );
+  _overLayer:Konva.Layer = new Konva.Layer( );
+
+  _pressedKeyMapping:any;
+  _displayMode:any = {
     mode: "default",
     collection: {
-      "default": (obj) => obj,
-      "attaching": (obj) => obj,
-      "cleaning": (obj) => obj,
+      "default": (obj:any) => obj,
+      "attaching": (obj:any) => obj,
+      "cleaning": (obj:any) => obj,
     }
   }
-  eventHandle = { onWheelZoom: _=> { } };
+  eventHandle = { onWheelZoom: (newScale:number, newPos:any)=> { } };
 
-  constructor( canvasDomIdStr, pressedKeyMapping ) {
+  constructor( canvasDomIdStr:string, pressedKeyMapping:any ) {
     this._pressedKeyMapping = pressedKeyMapping;
     this._element = document.getElementById( canvasDomIdStr );
     this._stage = new Konva.Stage({
@@ -68,7 +71,7 @@ export default class CanvasDrawer {
 
       stage.scale({ x: newScale, y: newScale });
 
-      var newPos = {
+      var newPos:any = {
         x: pointer.x - mousePointTo.x * newScale,
         y: pointer.y - mousePointTo.y * newScale,
       };
@@ -78,35 +81,35 @@ export default class CanvasDrawer {
     });
   }
 
-  addEventListener( evtName, callbackFn ) {
+  addEventListener( evtName:string, callbackFn:Function ) {
     this._element.addEventListener( evtName, callbackFn );
   }
 
-  drawOnBackground( node ) {
+  drawOnBackground( node:any ) {
     this._pinLayer.add( node );
 
     return this;
   }
 
-  drawPin( pinInstanceNode ) {
+  drawPin( pinInstanceNode:any ) {
     this._pinLayer.add( pinInstanceNode );
 
     return this;
   }
 
-  drawAttachment( pinConnectionNode ) {
+  drawAttachment( pinConnectionNode:any ) {
     this._attachmentLayer.add( pinConnectionNode.getDisplayNode( ) );
 
     return this;
   }
 
-  drawOnOverlay( node ) {
+  drawOnOverlay( node:any ) {
     this._pinLayer.add( node );
 
     return this;
   }
 
-  setZoom( zoomValue ) {
+  setZoom( zoomValue:number ) {
     let stage = this._stage;
     let newPos = {
       x: 0 - (stage.width( ) * (zoomValue -1)) /2,

@@ -4,10 +4,18 @@ export default class PinNotice extends Pin {
   _title:string;
   _text:string;
 
-  constructor( posX:number, posY:number, dataIdentifyer:string, title:string, text:string ) {
+  constructor(
+    posX:number = 0,
+    posY:number = 0,
+    dataIdentifyer:string = "UNSET",
+    valuesObj:any = { title:null, text:null }
+    ) {
     super( posX, posY, dataIdentifyer );
 
-    this._title = title;
-    this._text = text;
+    this.initValues( valuesObj );
+
+    //this.drawAllSprites( );
+
+    //this.updateSize( );
   }
 } 

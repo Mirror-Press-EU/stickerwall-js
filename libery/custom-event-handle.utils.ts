@@ -1,32 +1,41 @@
+import Konva from "konva";
+import DefaultPin from "./base/pin";
 import CustomEvtHndl from "./custom-event-handle";
 
-export default {
+const _utils_:any = {
   prototype: {
-    defineEvents: (targetClassScope, newEventKeys) => {
-      if (targetClassScope._events === undefined
-      ||  targetClassScope._events !== "object"
-      ) targetClassScope._events = { };
-        
+    defineEvent: (targetClassScope:DefaultPin, newEventKey:string) => {
+      targetClassScope._events[newEventKey] = new CustomEvtHndl( )
+    },
+    defineEvents: (targetClassScope:DefaultPin, newEventKeys:any) => {
       if (typeof newEventKeys === "object") {
         if (newEventKeys instanceof Array) {
   
           newEventKeys.forEach(
-            (curKey) => targetClassScope._events[curKey] = new CustomEvtHndl( )
+            (curKey) => _utils_.prototype.defineEvent( targetClassScope, curKey )
           );
   
         } else targetClassScope._events = Object.assign( targetClassScope._events, newEventKeys );
       }
     },
 
-    mappingEvtsToCstmEvts( targetClassScope, newEventKeys, targetShape=false ) {
+    mappingEvtsToCstmEvts(
+    targetClassScope:DefaultPin,
+    newEventKeys:string[],
+    targetShape:any=null
+    ) {
+
       if (!targetShape) targetShape = targetClassScope._container;
 
-      newEventKeys.forEach(
-        (curEvtName) => targetShape.on(
+      newEventKeys.forEach( (curEvtName:string) => {
+        if (typeof targetShape.on === "function") targetShape.on(
           curEvtName,
-          (a, b, c) => targetClassScope._triggerEvent( curEvtName, a, b, c )
+          (a:any, b:any, c:any) => targetClassScope._triggerEvent( curEvtName, a, b, c )
         )
-      );
+        } );
+
     }
   }
 }
+
+export default _utils_;

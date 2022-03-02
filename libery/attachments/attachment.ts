@@ -3,7 +3,7 @@ import CustomEvtUtils from "../custom-event-handle.utils";
 const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged" ];
 
 import PinUtilitys from '../base/pin.utils';
-import BasisPin from '../base/pin';
+import DefaultPin from '../base/pin';
 import AttachmentAnker from './anker';
 import Instandable from '../instandable';
 
@@ -11,34 +11,37 @@ import Instandable from '../instandable';
  *  Verbindet PIN & POS & ATTACHMENTS
  */
 export default class Attachment extends Instandable {
-  _targetPin = null;
-  _ankerPos = null;
+  _targetPin:DefaultPin = null;
+  _ankerPos:any = null;
 
-  _events = { };
+  _events:any = { };
 
-  constructor( targetPin, ankerPos ) {
+  constructor( targetPin:DefaultPin, ankerPos:string ) {
     super( );
     this._extAdd( "attachment" );
     this.defineEvents( EVENT_KEYS );
 
-    if (typeof ankerPos === "object" && ankerPos.pos)
-      ankerPos = ankerPos.pos;
-
     this.addAnker( targetPin, ankerPos );
   }
 
-  defineEvents( newEventKeys ) {
+  defineEvents( newEventKeys:string[] ) : void {
     CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
-  addAnker( targetPin, ankerObj ) {
+  addAnker( targetPin:DefaultPin, ankerObj:any ) : void {
     if (targetPin && ankerObj) {
       this._targetPin = targetPin;
       this._ankerPos = ankerObj;
     }
   }
-  getPin( ) { return this._targetPin; }
-  getAnker( ) { return this._ankerPos; }
+
+  getPin( ) :any/*DefaultPin*/ {
+    return this._targetPin;
+  }
+
+  getAnker( ) : AttachmentAnker {
+    return this._ankerPos;
+  }
 
   serializeToJSON( ) {
     return {

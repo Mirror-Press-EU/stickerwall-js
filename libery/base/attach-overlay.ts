@@ -1,18 +1,19 @@
 import Konva from "konva";
 import AttachmentAnker from "../attachments/anker";
+import DefaultPin from "./pin";
 import PinUtilitys from './pin.utils';
 
 export default class AttachOverlay extends Konva.Group {
-  _targetPinScope;
-  _ankerButtons = { };
-  _modeConfigs = {
+  _targetPinScope:DefaultPin;
+  _ankerButtons:any = { };
+  _modeConfigs:any = {
     isReady: false,
 
     onChoosenChangedCallback: null,
     choosenButtons: [ ]
   }
 
-  constructor( initWidth, initHeight, targetPinScope ) {
+  constructor( initWidth:number, initHeight:number, targetPinScope:DefaultPin ) {
     super( {
       x: 0, y: 0,
       width: initWidth, height: initHeight,
@@ -22,7 +23,7 @@ export default class AttachOverlay extends Konva.Group {
     this._targetPinScope = targetPinScope;
 
     PinUtilitys.anker.getAllPosValues( ).forEach(
-      (curPos) => this._addAnkerBotton( curPos )
+      (curPos:any) => this._addAnkerBotton( curPos )
     );
 
     //this._addAnkerBotton( "topright" );
@@ -30,12 +31,12 @@ export default class AttachOverlay extends Konva.Group {
     //this.performStart( (a,b,c) => console.log( a, b, c ) );
   }
 
-  calibrateButton( targetButton, ankerKey ) {
+  calibrateButton( targetButton:Konva.Shape, ankerKey:string ) : void {
     targetButton.setPosition(
       this._calculatePosition( ankerKey )
     );
   }
-  calibrateAllButtons( ) {
+  calibrateAllButtons( ) : void {
     for (let ankerKey in this._ankerButtons) {
       this.calibrateButton(
         this._ankerButtons[ ankerKey ].shape,
@@ -44,17 +45,17 @@ export default class AttachOverlay extends Konva.Group {
     }
   }
 
-  _calculatePosition( targetAnker ) {
-    let pinWidth = this._targetPinScope._width;
-    let pinHeight = this._targetPinScope._width;
+  _calculatePosition( targetAnker:string ) : any {
+    let pinWidth:number = this._targetPinScope._width;
+    let pinHeight:number = this._targetPinScope._width;
 
     // Simple Positons
-    let targetPos = PinUtilitys.anker.getCornerOffsetPos(
+    let targetPos:any = PinUtilitys.anker.getCornerOffsetPos(
       targetAnker,
       pinWidth, pinHeight
     )
     
-    let paddingPos = PinUtilitys.anker.getPaddindCornerPos(
+    let paddingPos:any = PinUtilitys.anker.getPaddindCornerPos(
       targetAnker, 16,
       targetPos
     );
@@ -62,14 +63,19 @@ export default class AttachOverlay extends Konva.Group {
     return paddingPos;
   }
 
-  _onAnkerBottonClicked( ankerStr, newBtnCheckState, targetButton, isTriggerEvent=true ) {
+  _onAnkerBottonClicked(
+    ankerStr:string,
+    newBtnCheckState:boolean,
+    targetButton:Konva.Shape,
+    isTriggerEvent:boolean = true
+  ) : void {
     this._setButtonState( ankerStr, newBtnCheckState, targetButton );
 
     if (isTriggerEvent)
       this._modeConfigs.onChoosenChangedCallback( this, ankerStr, newBtnCheckState, targetButton );
   }
   
-  _addAnkerBotton( ankerPosStr ) {
+  _addAnkerBotton( ankerPosStr:string ) : void {
     let scope = this;
 
     if (!this._ankerButtons[ ankerPosStr ]) {
@@ -83,16 +89,16 @@ export default class AttachOverlay extends Konva.Group {
 
       this.calibrateButton( newAnkerButton, ankerPosStr );
 
-      let newBtnCheckState = false;
+      let newBtnCheckState:boolean = false;
       newAnkerButton.on(
         "mouseover",
-        _=> newAnkerButton.fill(
+        ()=> newAnkerButton.fill(
           "rgba( 255, 160, 160, " + (!newBtnCheckState ? ".5" : ".75") + " )"
         )
       );
       newAnkerButton.on(
         "mouseout",
-        _=> newAnkerButton.fill(
+        ()=> newAnkerButton.fill(
           "rgba( 255, 160, 160, " + (!newBtnCheckState ? ".25" : ".75") + " )"
         )
       );
@@ -112,7 +118,8 @@ export default class AttachOverlay extends Konva.Group {
     }
   }
 
-  _setButtonState( ankerStr, newState, targetButton ) {
+  _setButtonState( ankerStr:string, newState:boolean, targetButton:Konva.Shape ) {
+
     // Update Memory
     if (newState) this._modeConfigs.choosenButtons.push( ankerStr );
     else {
@@ -124,16 +131,17 @@ export default class AttachOverlay extends Konva.Group {
     targetButton.fill(
       "rgba( 255, 160, 160, " + (newState ? ".75" : ".5") + " )"
     );
+
   }
 
-  _setAllButtonStates( newState ) {
+  _setAllButtonStates( newState:boolean ) : void {
     PinUtilitys.anker.getAllPosValues( ).forEach(
-      (curPos) => this._setButtonState( curPos, newState, this._ankerButtons[ curPos ] )
+      (curPos:string) => this._setButtonState( curPos, newState, this._ankerButtons[ curPos ] )
     );
   }
 
-  performStart( onChoosenChangedCallback ) {
-    this.setVisible( true );
+  performStart( onChoosenChangedCallback:Function ) : void {
+    this.visible( true );
 
     this._modeConfigs = {
       isReady: true,
@@ -146,7 +154,7 @@ export default class AttachOverlay extends Konva.Group {
   }
 
   performFinish( ) {
-    this.setVisible( false );
+    this.visible( false );
 
     this._modeConfigs = {
       isReady: false,

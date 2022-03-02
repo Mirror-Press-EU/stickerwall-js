@@ -19,32 +19,34 @@ const EVENT_KEYS = [
 ];
 
 export default class Pin extends Instandable {
-  _dataIdentifyer = "UNKNOW";
-  _height = 0;
-  _width = 0;
+  _dataIdentifyer:string = "UNKNOW";
+  _height:number = 0;
+  _width:number = 0;
 
-  _container = null;
-  _blueprint = null;
-  _ankerOverlay = null;
-  _background = null;
+  _container:any/*Konva.Group*/ = null;
+  _blueprint:any/*Konva.Rect*/ = null;
+  _ankerOverlay:AttachOverlay = null;
+  _background:any/*Konva.Rect*/ = null;
 
-  _contentShapes = [ ];
+  _contentShapes:Konva.Shape[] = [ ];
 
-  pinType;
-  _guiFocus = false;
-  values = { };
-  _attachments = [ ];
+  pinType:string;
+  _guiFocus:boolean = false;
+  values:any = { };
 
-  _events = { };
+  _events:any = { };
 
-  constructor( posX, posY, dataIdentifyer ) {
+  constructor( posX:number, posY:number, dataIdentifyer:string ) {
     super( );
     this._extAdd( "pin-base" );
     this.defineEvents( EVENT_KEYS );
 
     if (!posX) posX = 0;
     if (!posY) posY = 0;
-    if (!dataIdentifyer) dataIdentifyer = "UNKNOWN";
+    if (!dataIdentifyer) {
+      dataIdentifyer = "UNKNOWN";
+      console.warn( `Warn in PinBase Init, "${dataIdentifyer}" is not a valide dataID!` );
+    }
     
     this.initValues( { x:posX, y:posY } );
     
@@ -54,71 +56,76 @@ export default class Pin extends Instandable {
 
     this.addEventListener(
       "onFocusChanged",
-      (newState) => this._displayBlueprint( newState )
+      (newState:boolean) => this._displayBlueprint( newState )
     );
   }
 
-  _addShape( newShape, isRelativ=false ) {
-    if (!newShape) console.warn( "Param is Null!!" );
+  _addShape( newShape:any, isRelativ:boolean=false ) : any {
+    if (!newShape) console.warn( "First Param (KonvaNodeShape) can not null!" );
     else if (this._container) {
       PinUtilitys.basic.addAttachmentsToCanvasNode( newShape, this );
 
       if (!isRelativ) this._contentShapes.push( newShape );
-      if (this._container != newShape) this._container.add( newShape );
+      /*if (this._container != newShape) */this._container.add( newShape );
     }
 
     return newShape;
   }
 
-  defineEvents( newEventKeys ) {
+  defineEvents( newEventKeys:any ) {
     CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
-  addEventListener( targetEvtName, callFn ) {
+  addEventListener( targetEvtName:string, callFn:Function ) {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr) targetEvtHndlr.add( callFn );
 
     return this;
   }
 
-  _triggerEvent( targetEvtName, param1, param2, param3 ) {
+  _triggerEvent(
+  targetEvtName:string,
+  param1:any = null,
+  param2:any = null,
+  param3:any = null
+  ) {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2, param3, this );
   }
 
-  bindDefaultEvents( ) {
+  bindDefaultEvents( ) : void {
     let scope = this;
 
     //CustomEvtUtils.prototype.mappingEvtsToCstmEvts( this, [ "dragstart", "dragend", "mouseover", "mouseout", "click" ] );
     [ "dragstart", "dragend", "mouseover", "mouseout", "click" ].forEach(
       (curEvtName) => scope._container.on(
         curEvtName,
-        (a, b, c) => scope._triggerEvent( curEvtName, a, b, c )
+        (a:any, b:any, c:any) => { scope._triggerEvent( curEvtName, a, b, c ); return true; }
       )
     );
 
-    this.addEventListener( "onFinishDrawing", (w, h) =>
+    this.addEventListener( "onFinishDrawing", (w:number, h:number) =>
       scope.updateSize( )
     );
 
-    this.addEventListener( "onValueChanged", _=> {
+    this.addEventListener( "onValueChanged", ()=> {
       scope.updateSize( );
     } );
 
-    this.addEventListener( "dragend", _=> {
+    this.addEventListener( "dragend", ()=> {
       let newPos = scope.getPosition( true );
       scope.values.x = newPos.x;
       scope.values.y = newPos.y;
     } );
   }
 
-  bindAllEvents( evtFunctionMapping ) {
+  bindAllEvents( evtFunctionMapping:any ) : void {
     for (let curEvtName in evtFunctionMapping) {
-      let curEvtFn = evtFunctionMapping[ curEvtName ];
+      let curEvtFn:Function = evtFunctionMapping[ curEvtName ];
 
       if (curEvtFn instanceof Function) {
-        let targetNodeShape;
+        let targetNodeShape:any;
         switch (curEvtName.toLocaleLowerCase( )) {
           case "dragstart":
           case "dragend":
@@ -135,7 +142,7 @@ export default class Pin extends Instandable {
     }
   }
 
-  drawBasics( beforeFn, afterFn ) {
+  drawBasics( beforeFn:Function, afterFn:Function ) : void {
     if (beforeFn instanceof Function) beforeFn( );
 
     let pinPos = this.getPosition( );
@@ -168,17 +175,17 @@ export default class Pin extends Instandable {
     this.bindDefaultEvents( );
 
     this.addEventListener(
-      "onSizesChanged", _=> this._ankerOverlay.calibrateAllButtons( )
+      "onSizesChanged", ()=> this._ankerOverlay.calibrateAllButtons( )
     );
 
     this._triggerEvent( "onFinishDrawing", this );
   }
 
-  initValues( initMappedValuesObj ) {
+  initValues( initMappedValuesObj:any ) : void {
     this.values = Object.assign( this.values, initMappedValuesObj );
   }
 
-  updateValue( key, value, callUpdate=true ) {
+  updateValue( key:string, value:any, callUpdate:boolean=true ) {
     if (this.values[ key ] !== undefined) {
       this.values[ key ] = value;
 
@@ -187,7 +194,7 @@ export default class Pin extends Instandable {
       );
     }
   }
-  updateValues( keyValueMapping ) {
+  updateValues( keyValueMapping:any ) {
     for (let k in keyValueMapping) {
       this.updateValue( k, keyValueMapping[ k ], false );
     }
@@ -257,7 +264,7 @@ export default class Pin extends Instandable {
 
   isSelected( ) { return this._guiFocus; }
 
-  setFocus( newState ) {
+  setFocus( newState:boolean ) {
     this._guiFocus = newState;
     //this._triggerEvent( "onFocusChanged", newState, this );
   }
@@ -277,7 +284,7 @@ export default class Pin extends Instandable {
     };
   }
 
-  fromSerialized( valuesObj ) {
+  fromSerialized( valuesObj:any ) {
     if (valuesObj.id && valuesObj.type && valuesObj.values) {
       this._dataIdentifyer = valuesObj.id;
       this.pinType = valuesObj.type;
@@ -289,7 +296,7 @@ export default class Pin extends Instandable {
 
   // --- Display Methods ---
   
-  _displayBlueprint( newState ) {
+  _displayBlueprint( newState:boolean ) {
     let blueprintOpacity = "0.0";
     let containerOpacity = __DEFAULT_CONFIG__.styles.opacity.default;
 
@@ -301,4 +308,8 @@ export default class Pin extends Instandable {
     this._blueprint.setOpacity( blueprintOpacity );
     this._container.setOpacity( containerOpacity );
   }
+
+  // BasePin has no Attributes...
+  // @Override
+  setDisplayValues( attrValues:any ) : void { }
 }

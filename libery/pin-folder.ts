@@ -3,14 +3,18 @@ import PinNotice from "./pins/notice";
 
 import CustomEvtHndl from "./custom-event-handle";
 import CustomEvtUtils from "./custom-event-handle.utils";
+import DefaultPin from "./base/pin";
+import Attachment from "./attachments/attachment";
+import SimpleDisplayMode from "./display-modes/simple-display-mode";
+import AttachOverlay from "./base/attach-overlay";
 
 const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
-  _pins = { };
-  _attachments = [ ];
-  _events = { };
-  _displayMode;
+  _pins:any = { };
+  _attachments:Attachment[] = [ ];
+  _events:any = { };
+  _displayMode:any;
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -21,7 +25,7 @@ export default class PinFolder {
 --*| --- ADD ---
 --*/
 
-  onPinNodeClicked( targetPin ) {
+  onPinNodeClicked( targetPin:DefaultPin ) : void {
     if (this._displayMode)
       if (!this._displayMode.eventIsAllowed( "onFocusChanged" ))
         return;
@@ -30,7 +34,8 @@ export default class PinFolder {
     this._triggerPinEvent( targetPin, "onFocusChanged", newState );
   }
 
-  addPinNode( pinInstanceObj ) {
+  addPinNode( pinInstanceObj:DefaultPin ) : void {
+
     let scope = this;
     let pinID = pinInstanceObj.getID( );
 
@@ -41,15 +46,15 @@ export default class PinFolder {
       pinInstanceObj.addEventListener(
 
         "click",
-        _=> scope.onPinNodeClicked( pinInstanceObj )
+        ()=> scope.onPinNodeClicked( pinInstanceObj )
 
       ).addEventListener(
 
         "onEditorModeChanged",
-        (newState, a, b, pinScope ) => {
+        (newState:boolean, a:any, b:any, pinScope:DefaultPin ) => {
           if (newState) pinScope._ankerOverlay.performStart(
 
-            (attOverlayScope, targetPos, newState) => {
+            (attOverlayScope:AttachOverlay, targetPos:any, newState:boolean) => {
               if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
             }
 
@@ -67,11 +72,10 @@ export default class PinFolder {
       // --- Storage ---
       this._pins[ pinID ] = pinInstanceObj;
     } else console.log( "ID Kollision! Fehler bei Key Regestrierung!" );
-
-    return this;
+    
   }
   
-  addAttachment( newAttachment ) {
+  addAttachment( newAttachment:Attachment ) : void {
     this._attachments.push( newAttachment );
   }
 
@@ -80,38 +84,37 @@ export default class PinFolder {
 --*| --- Getter ---
 --*/
 
-  getPin( pinID ) {
-    if (typeof pinID !== "string") pinID = pinID._dataIdentifyer;
+  getPin( pinID:string ) : any/*DefaultPin*/ {
     return this._pins[ pinID ];
   }
 
-  getAllPins( ) {
-    let pinList = [];
+  getAllPins( ) : any/*DefaultPin*/[] {
+    let pinList:any/*DefaultPin*/[] = [];
+
     for (let id in this._pins)
       pinList.push( this._pins[ id ] );
 
     return pinList;
   }
 
-  getPinsMap( ) { return this._pins; }
-  getPinCount( ) {
+  getPinsMap( ) : any { return this._pins; }
+  getPinCount( ) : number {
     return this.getAllPins( ).length;
   }
 
-  getNextRandomID( prefix ) {
-    let idIndex = 0;
+  getNextRandomID( prefix:string="" ) {
+    let idIndex:number = 0;
     while (this.getPin( prefix + idIndex )) idIndex ++;
 
     return prefix + idIndex;
   }
 
-  getAttachmentList( ) { return this._attachments; }
+  getAttachmentList( ) : Attachment[] { return this._attachments; }
 
-  getAttachmentsFromPin( searchValue ) {
-    let resultList = [ ];
-    if (searchValue instanceof Pin) searchValue = searchValue.getID;
+  getAttachmentsFromPinID( targetPinID:string ) : any/*Attachment*/[] {
+    let resultList:any/*Attachment*/[] = [ ];
 
-    if (this._pins[ searchValue ]) {
+    if (this._pins[ targetPinID ]) {
       this._attachments.forEach( (curAttach) => {
         if (curAttach.getPin( )) {
           resultList.push( curAttach );
@@ -122,16 +125,20 @@ export default class PinFolder {
     return resultList;
   }
 
+  getAttachmentsFromPin( targetPin:DefaultPin ) : any/*Attachment*/[] {
+    return this.getAttachmentsFromPinID( targetPin.getID( ) );
+  }
+
 
  /*| ___________
 --*| --- Remove ---
 --*/
 
-  removePinNode( targetPin ) {
+  removePinNode( targetPin:DefaultPin ) : void {
 
   }
   
-  removeAttachment( targetAttachment ) {
+  removeAttachment( targetAttachment:Attachment ) : void {
 
   }
 
@@ -140,11 +147,11 @@ export default class PinFolder {
 --*| --- (Ex-/Im-)port ---
 --*/
 
-  loadPinsFromJsonList ( pinJsonObj ) {
+  loadPinsFromJsonList ( pinJsonObj:any ) : void {
     let scope = this;
 
     if (pinJsonObj.length !== undefined) {
-      pinJsonObj.forEach( (curNodeData) => {
+      pinJsonObj.forEach( (curNodeData:any) => {
         let newNode = null;
 
         switch (curNodeData.type.toLowerCase( )) {
@@ -160,12 +167,10 @@ export default class PinFolder {
     }
   }
 
-  loadAttachmentsFromJsonList ( attJsonObj ) {
-    let scope = this;
-
+  loadAttachmentsFromJsonList ( attJsonObj:any ) : void {
     if (attJsonObj.length !== undefined) {
 
-      attJsonObj.forEach( (curAtta) => {
+      attJsonObj.forEach( (curAtta:any) => {
         switch (curAtta.type.toLowerCase( )) {
           case "connection":
             break;
@@ -175,31 +180,25 @@ export default class PinFolder {
     }
   }
 
-  loadFromJSON( jsonObj ) {
+  loadFromJSON( jsonObj:any ) : void {
     let pins = jsonObj.nodes;
     let atta = jsonObj.attachments
 
-    if (jsonObj.nodes)
-      this.loadPinsFromJsonList( pins );
-
-    if (jsonObj.attachments)
-      this.loadAttachmentsFromJsonList( atta );
+    if (jsonObj.nodes) this.loadPinsFromJsonList( pins );
+    if (jsonObj.attachments) this.loadAttachmentsFromJsonList( atta );
   }
 
-  exportToJSON( ) {
-    let resultObj = { nodes:[], attachments:[] };
+  exportToJSON( ) : string {
+    let resultObj:any = { nodes:[], attachments:[] };
 
-    if (this.pinFolder !== null) {
-      this.pinFolder.getAllPins( ).forEach(
-        (curPin) => resultObj.nodes.push( curPin.serializeToJSON( ) )
-      );
-  
-      this.pinFolder.getAttachmentList( ).forEach(
-        (curAttach) => resultObj.attachments.push( curAttach.serializeToJSON( ) )
-      );
-    } else console.error( "Fehler beim exportieren!" );
+    this.getAllPins( ).forEach(
+      (curPin) => resultObj.nodes.push( curPin.serializeToJSON( ) )
+    );
+
+    this.getAttachmentList( ).forEach(
+      (curAttach) => resultObj.attachments.push( curAttach.serializeToJSON( ) )
+    );
     
-
     return JSON.stringify(resultObj) ;
   }
 
@@ -208,32 +207,47 @@ export default class PinFolder {
  --*| --- Dynamic Events ---
  --*/
 
-  defineEvents( newEventKeys ) {
+  defineEvents( newEventKeys:any ) : PinFolder {
     CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
+
+    return this;
   }
 
-  addEventListener( targetEvtName, callFn ) {
+  addEventListener( targetEvtName:string, callFn:Function ) : PinFolder {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr) targetEvtHndlr.add( callFn );
 
     return this;
   }
 
-  _triggerEvent( targetEvtName, param1, param2 ) {
+  _triggerEvent(
+  targetEvtName:string,
+  param1:any = null,
+  param2:any = null
+  ) : void {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2 );
   }
 
-  _triggerPinEvent( targetPin, eventNameStr, param1, param2 ) {
-    if (typeof targetPin === "string") targetPin = this.getPin( targetPin );
+  _triggerPinEvent(
+  targetPin:DefaultPin,
+  eventNameStr:string,
+  param1:any = null,
+  param2:any = null
+  ) : void {
+    /*if (typeof targetPin === "string") targetPin = this.getPin( targetPin );*/
 
     targetPin._triggerEvent( eventNameStr, param1, param2 );
   }
 
-  _triggerAllPinsEvent( eventNameStr, param1, param2 ) {
+  _triggerAllPinsEvent(
+  eventNameStr:string,
+  param1:any = null,
+  param2:any = null
+  ) : void {
     this.getAllPins( ).forEach(
-      (curPin) => this._triggerPinEvent( curPin, eventNameStr, param1, param2 )
+      (curPin:DefaultPin) => this._triggerPinEvent( curPin, eventNameStr, param1, param2 )
     );
   }
 
@@ -243,7 +257,7 @@ export default class PinFolder {
  --*| --- Display Methods ---
  --*/
 
-  startDisplayMode( newDisplayMode ) {
+  startDisplayMode( newDisplayMode:any ) : void {
     if (this._displayMode) this._displayMode.cancle( );
 
     if (newDisplayMode.instanceOf( "SimpleDisplayMode" )) {
@@ -254,20 +268,20 @@ export default class PinFolder {
     }
   }
 
-  cancleDisplayMode( ) {
+  cancleDisplayMode( ) : void {
     this._displayMode.cancle( );
     this._displayMode = null;
     
     this._triggerAllPinsEvent( "onEditorModeChanged", false );
   }
 
-  clearPinFocus( ) {
+  clearPinFocus( ) : void {
     this.getAllPins( ).forEach(
-      (curPin) => curPin.setFocus( false )
+      (curPin:DefaultPin) => curPin.setFocus( false )
     );
   }
 
-  setPinFocus( targetPin, newState ) {
+  setPinFocus( targetPin:DefaultPin, newState:boolean ) : void {
     this.clearPinFocus( );
 
     if (newState)

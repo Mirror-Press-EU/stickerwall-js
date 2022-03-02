@@ -2,8 +2,8 @@ import Konva from 'konva';
 import Instandable from '../instandable';
 
 export default class Shapes extends Instandable {
-  _shapeType;
-  _shape;
+  _shapeType:string;
+  _shape:any;
 
   constructor( ) {
     super( );
@@ -11,17 +11,17 @@ export default class Shapes extends Instandable {
     this._shapeType = "basis";
   }
 
-  setDisplayNode( konvaNode ){
+  setDisplayNode( konvaNode:any ) : void {
     this._shape = konvaNode;
   }
 
-  getDisplayNode( ) {
+  getDisplayNode( ) : any {
     return this._shape;
   }
 
-  getType( ) { return this._type; }
+  getType( ) : string { return this._shapeType; }
 
-  serializeToJSON( valuesObj={ } ) {
+  serializeToJSON( valuesObj={ } ) : any {
     let vPos = this._shape.getPosition( );
     let defaultValues = { x: vPos.x, y: vPos.y }
     

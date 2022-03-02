@@ -2,21 +2,19 @@ import ConnectionUtilitys from './conection.utils';
 
 import Shapes from '../base/shapes';
 import Attachment from './attachment';
+import DefaultPin from '../base/pin';
+import AttachmentAnker from './anker';
 
 export default class PinConnection extends Shapes {
-  attachments = { from:null, dest:null };
+  attachments:any = { from:null, dest:null };
 
   // --- Defaults ---
-  constructor( pinA, ankerPosA, pinB, ankerPosB ) {
+  constructor( pinA:DefaultPin, ankerPosA:string, pinB:DefaultPin, ankerPosB:string ) {
+
     super( );
+
     this._extAdd( "attach-connection-shape" );
     this._shapeType = "attach-connection";
-
-    if (!pinA.instanceOf( "pin-base" )
-    ||  !pinB.instanceOf( "pin-base" )
-    ||  !ankerPosA.instanceOf( "attachment-anker" )
-    ||  !ankerPosB.instanceOf( "attachment-anker" )
-    ) console.error( "PinConnection constructor requier 2 Pin & 2 Attachment-Anker Parameters!" );
 
     this.attachments = {
       from: new Attachment( pinA, ankerPosA ),
@@ -31,23 +29,24 @@ export default class PinConnection extends Shapes {
     this.bindEvents( );
 
     this.syncAnkerPos( );
+
   }
 
-  bindEvents( ) {
+  bindEvents( ) : void {
     let pinConScope = this;
 
-    [ this.attachments.from, this.attachments.dest ]
-    .forEach( function (curAttach) {
-      let node = curAttach.getPin( ).getDisplayNode( );
-      node/*.on('dragstart', function( ) {
-        // Start Animation Thread and execute .syncAnkerPos( )
-      })*/.on(
-        'dragend', _=> pinConScope.syncAnkerPos( )
-      );
-    });
+    [ this.attachments.from, this.attachments.dest ].forEach(
+      (curAttach:Attachment) => {
+        let node:any = curAttach.getPin( ).getDisplayNode( );
+
+        node.on(
+          'dragend', ()=> pinConScope.syncAnkerPos( )
+        );
+      }
+    );
   }
 
-  syncAnkerPos( ) {
+  syncAnkerPos( ) : void {
     ConnectionUtilitys.shape.updateLine(
       this.getDisplayNode( ),
       this.attachments.from,
@@ -55,7 +54,7 @@ export default class PinConnection extends Shapes {
     );
   }
 
-  serializeToJSON( ) {
+  serializeToJSON( ) : any {
     let attach = this.attachments;
 
     return super.serializeToJSON( {

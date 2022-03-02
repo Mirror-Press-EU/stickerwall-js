@@ -1,22 +1,26 @@
-const getEl = (collection, stringID) => collection[ stringID ];
-const MDCInit = ( MDCClass, cssQueryStr ) => {
-  let resultMap = {
-    get( key ) {
+const getEl = (collection:any, stringID:string) => collection[ stringID ];
+const MDCInit = ( MDCClass:any, cssQueryStr:string ) => {
+  let resultMap:any = {
+    get( key:string ) {
       return this[key];
     }
   };
   
-  [... document.querySelectorAll( cssQueryStr )].map( (domEl) => {
-    let domID = domEl.getAttribute( "id" );
+  let allResults = document.querySelectorAll( cssQueryStr );
+
+  for (let iRes:number=0; iRes < allResults.length; iRes++) {
+    let domEl:any = allResults[ iRes ];
+    let domID:string = domEl.getAttribute( 'id' );
 
     if (!domID) {
       let childIdEl = domEl.querySelector( '[id]' );
-      if (childIdEl) domID = childIdEl.getAttribute( "id" )
+      if (childIdEl) domID = childIdEl.getAttribute( 'id' )
     }
 
-    let instance = new MDCClass( domEl );
+    let instance:any = new MDCClass( domEl );
     if (domID) resultMap[ domID ] = instance;
-  } );
+    return domID;
+  };
 
   return resultMap;
 };
@@ -32,8 +36,8 @@ import PinConnection from '../libery/attachments/connection';
 import ConnectDisplayMode from '../libery/display-modes/connect-display-mode';
 
 export default class Controller {
-  controlls;
-  stickerWall;
+  controlls:any;
+  stickerWall:StickerWallManager;
 
   constructor( ) {
     this.stickerWall = new StickerWallManager( );
@@ -53,7 +57,7 @@ export default class Controller {
  --*| --- Init ---
  --*/
 
-  initAllDialogs( ) {
+  initAllDialogs( ) : void {
     /*[ this.controlls.qouteDialog, this.controlls.noticeDialog ]*/
 
     this.controlls.dialogs.modifyPinQoute.container = new QuoteModifyDialog(
@@ -63,7 +67,7 @@ export default class Controller {
     );
   }
 
-  initGui( ) {
+  initGui( ) : void {
     //const app_list = MDCInit( MDCList, '.mdc-list' );
     const app_buttons = MDCInit( MDCRipple, '.mdc-button' );
     const app_textFields = MDCInit( MDCTextField, '.mdc-text-field' );
@@ -120,11 +124,11 @@ export default class Controller {
         
       },
 
-      getElement: ( attrPathList, callback ) => {
-        if (!callback) callback = (el)=> el;
-        let resultEl = this.controlls;
+      getElement: ( attrPathList:any, callback:Function ) => {
+        if (!callback) callback = (el:HTMLElement) => el;
+        let resultEl:any = this.controlls;
       
-        attrPathList.forEach( (curAttrKey) => {
+        attrPathList.forEach( (curAttrKey:string) => {
           if (resultEl !== null)
             resultEl = (resultEl[ curAttrKey ])
               ? resultEl[ curAttrKey ]
@@ -132,9 +136,10 @@ export default class Controller {
         } );
       
         return callback( resultEl );
-      }, setElement: ( attrPathList, newValue, callback ) => {
-        if (!callback) callback = (el)=> el;
-        let resultEl = this.controlls.getElement( attrPathList );
+      },
+      setElement: ( attrPathList:any, newValue:any, callback:Function ) => {
+        if (!callback) callback = (el:HTMLElement) => el;
+        let resultEl:any = this.controlls.getElement( attrPathList );
     
         resultEl = newValue;
         return callback( resultEl );
@@ -151,7 +156,7 @@ export default class Controller {
  --*| --- Storage ---
  --*/
 
-  loadFolderFromLocalStorage( ) {
+  loadFolderFromLocalStorage( ) : void {
     let localStorageJsonStr = localStorage.getItem( 'folder' );
     if (localStorageJsonStr) {
 
@@ -170,7 +175,7 @@ export default class Controller {
  --*| --- EVENT HANDLE ---
  --*/
 
-  bindButtonsEvents( ) {
+  bindButtonsEvents( ) : void {
 
     // --- GUI-Module ---
     this.bindZoomBar( );
@@ -185,8 +190,8 @@ export default class Controller {
     this.bindCreateConnectionButton( );
   }
 
-  bindZoomBar( ) {
-    let zoomBarControllMapping = this.controlls.getElement( [ 'sidebar', 'zoom' ] );
+  bindZoomBar( ) : void {
+    let zoomBarControllMapping:any = this.controlls.getElement( [ 'sidebar', 'zoom' ] );
 
     if (zoomBarControllMapping && this.stickerWall) this.controlls.setElement(
       [ 'sidebar', 'zoom', 'instance' ], // Path to Target Value
@@ -197,13 +202,13 @@ export default class Controller {
     );
   }
 
-  bindCancleDisplayModeButton( ) {
-    let scope = this;
+  bindCancleDisplayModeButton( ) : void {
+    let scope:Controller = this;
     let cancleDisplayMode = this.controlls.getElement( [ 'cancleDisplayMode' ] );
 
     if (cancleDisplayMode) 
       cancleDisplayMode.root.addEventListener(
-        'click', _=> scope.cancleDisplayMode( )
+        'click', ()=> scope.stickerWall.cancleDisplayMode( )
       )
   }
 
@@ -213,13 +218,13 @@ export default class Controller {
 
     if (saveFolderButton && canDisplay) {
       saveFolderButton.root.addEventListener(
-        'click', _=> {
+        'click', ()=> {
           saveFolderButton.root.classList.remove( "changed" );
-          localStorage.setItem( 'folder', this.exportToJSON( ) );
+          //localStorage.setItem( 'folder', this.stickerWall.exportToJSON( ) ); // @ToDo: Export to JSON
         }
       );
       canDisplay.addEventListener(
-        'click', _=> saveFolderButton.root.classList.add( "changed" )
+        'click', ()=> saveFolderButton.root.classList.add( "changed" )
       );
     }
   }
@@ -228,7 +233,7 @@ export default class Controller {
     let openToolBoxButton = this.controlls.getElement( [ 'toolbox', 'openButton' ] );
     
     if (openToolBoxButton) openToolBoxButton.root.addEventListener(
-      "click", ( evt ) => this.onOpenUtilityListClicked( evt )
+      "click", ()=> this.onOpenUtilityListClicked( )
     );
   }
 
@@ -256,7 +261,7 @@ export default class Controller {
     }
   }
 
-  onCreateQouteButtonClicked( evt ) {
+  onCreateQouteButtonClicked( ) {
     this.closeUtilityList( );
     let quoteDialog = this.controlls.getElement( [ 'dialogs', 'modifyPinQoute', 'container' ] );
     quoteDialog.fillFormular( "CREATE" );
@@ -268,11 +273,11 @@ export default class Controller {
     let modQouteDialog = this.controlls.getElement([ 'dialogs', 'modifyPinQoute', 'container' ]);
 
     if (modQouteDialog && createQouteButton) createQouteButton.root.addEventListener(
-      "click", ( evt ) => this.onCreateQouteButtonClicked( evt )
+      "click", ()=> this.onCreateQouteButtonClicked( )
     );
   }
 
-  onEditorModeFinished(modeNameStr, choosenAnkerList) {
+  onEditorModeFinished(modeNameStr:string, choosenAnkerList:any) {
     console.log(modeNameStr, choosenAnkerList);
 
     switch (modeNameStr) {
@@ -289,14 +294,14 @@ export default class Controller {
     let createConnectionButton = this.controlls.getElement( [ 'toolbox', 'createButtons', 'connection' ] );
 
     if (createConnectionButton)
-      createConnectionButton.root.addEventListener( "click", _=> {
+      createConnectionButton.root.addEventListener( "click", ()=> {
         let targetPinFolder = this.stickerWall.getPinFolder( );
 
         if (targetPinFolder.getPinCount( ) >= 2)
           this.stickerWall.startDisplayMode(
 
             new ConnectDisplayMode(
-              (mode, ankerInfo) => this.onEditorModeFinished( mode, ankerInfo )
+              (mode:any, ankerInfo:any) => this.onEditorModeFinished( mode, ankerInfo )
             )
             
           ); // Wechsel alle Pins in den Attaching Mode
