@@ -19,7 +19,6 @@ const MDCInit = ( MDCClass:any, cssQueryStr:string ) => {
 
     let instance:any = new MDCClass( domEl );
     if (domID) resultMap[ domID ] = instance;
-    return domID;
   };
 
   return resultMap;
