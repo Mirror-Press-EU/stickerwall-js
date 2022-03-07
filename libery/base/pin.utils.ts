@@ -1,11 +1,14 @@
-export default {
+import AttachmentAnker from "../attachments/anker";
+import DefaultPin from "./pin";
+
+const _utils_:any = {
   basic: {
-    addAttachmentsToCanvasNode: ( pinNodeObj, pinInstanceScope ) => {
+    addAttachmentsToCanvasNode: ( pinNodeObj:any, pinInstanceScope:DefaultPin ) => {
       if (!pinNodeObj) console.log( "Null Parameter nicht vorgesehen!" );
 
       return Object.assign( pinNodeObj, {
         pinInstance: pinInstanceScope,
-        getPinId: _=> this.pinInstance.pinID
+        getPinId: ()=> _utils_.prototype.pinInstance.pinID
       } );
     }
   },
@@ -18,34 +21,31 @@ export default {
       center: 'CENTER'
     },
 
-    getPosValue( posKey ) {
+    getPosValue( posKey:string ) : any {
       return this.positions[ posKey ];
     },
 
-    validatePositionString( posStr ) {
+    validatePositionString( posStr:string ) : boolean {
       return this.getAllPosValues( ).indexOf( posStr ) >= 0;
     },
 
-    getAllPosKeys( ) {
+    getAllPosKeys( ) : string[] {
       let resultList = [ ];
+
       for (let k in this.positions) resultList.push( k );
+
       return resultList;
     },
-    getAllPosValues( ) {
+    getAllPosValues( ) : string[] {
       let resultList = [ ];
       for (let k in this.positions)
         resultList.push( this.positions[ k ] );
 
       return resultList;
     },
-    getCornerOffsetPos( ankerPosKey, w, h ) {
-      let POS = this.positions;
-      let returnPos = { x:0, y:0 };
-
-      if (typeof ankerPosKey !== "string") {
-        if (ankerPosKey.instanceOf && ankerPosKey.instanceOf( "attachment-anker" ))
-          ankerPosKey = ankerPosKey.getPosKey( )
-      }
+    getCornerOffsetPos( ankerPosKey:string, w:number, h:number ) : any {
+      let POS:any = this.positions;
+      let returnPos:any = { x:0, y:0 };
 
       ankerPosKey = ankerPosKey.toUpperCase( );
       
@@ -57,34 +57,30 @@ export default {
 
       return returnPos;
     },
-    getCornerPos( pinInstance, ankerPos ) {
-      let POS = this.positions;
-      let ankerPosKey;
-
-      if (typeof ankerPos === "string") ankerPosKey = ankerPos.toUpperCase( );
-      else if (ankerPos.instanceOf( "attachment-anker" )) ankerPosKey = ankerPos.getPosKey( ).toUpperCase( );
-      else ankerPosKey = allPos.center;
-
-      let returnPos = pinInstance.getPosition( );
+    getCornerPos(
+      pinInstance:DefaultPin,
+      ankerPos:string="center"
+    ) : any {
+      let POS:any = this.positions;
+      let returnPos:any = pinInstance.getPosition( );
     
-      let pinWidth = pinInstance.getWidth( );
-      let pinHeight = pinInstance.getHeight( );
+      let pinWidth:number = pinInstance.getWidth( );
+      let pinHeight:number = pinInstance.getHeight( );
 
-      let offsetPos = this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
+      let offsetPos:any = this.getCornerOffsetPos( ankerPos, pinWidth, pinHeight );
     
       return this.addPos( returnPos, offsetPos );
     },
-    getPaddindCornerPos( ankerPos, paddingValue, defaultPos=null) {
-      let POS = this.positions;
-      let ankerPosKey;
-
-      if (typeof ankerPos === "string") ankerPosKey = ankerPos;
-      else if (ankerPos.instanceOf( "attachment-anker" )) ankerPosKey = ankerPos.getPosKey( );
-      else ankerPosKey = allPos.center;
+    getPaddindCornerPos(
+      ankerPosKey:string="center",
+      paddingValue:number=0,
+      defaultPos:any={x:0, y:0}
+    ) : any {
+      let POS:any = this.positions;
 
       if (isNaN(defaultPos.x) || isNaN(defaultPos.y)) defaultPos = { x:0, y:0 };
     
-      let returnPos = {
+      let returnPos:any = {
         x: 0 - paddingValue, //Links
         y: 0 - paddingValue  //Oben
       };
@@ -97,7 +93,7 @@ export default {
     
       return this.addPos( defaultPos, returnPos );
     },
-    addPos( pos1, pos2 ) {
+    addPos( pos1:any, pos2:any ) : any {
       return {
         x: pos1.x + pos2.x,
         y: pos1.y + pos2.y
@@ -153,3 +149,5 @@ export default {
     }`
   }
 }
+
+export default _utils_;

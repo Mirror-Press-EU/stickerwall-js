@@ -1,15 +1,18 @@
+import AttachmentAnker from "../attachments/anker";
+import AttachOverlay from "../base/attach-overlay";
+import DefaultPin from "../base/pin";
 import Instandable from "../instandable";
 
 const __TYPE__ = "SimpleDisplayMode";
 export default class SimpleDisplayMode extends Instandable {
   
-  _modeName = null;
-  _onFinishedFn = _=> { };
-  _choosenPins = { };
-  _index = 0;
-  _requiredCount;
+  _modeName:string;
+  _onFinishedFn:Function = ()=> { };
+  _choosenPins:any = { };
+  _index:number = 0;
+  _requiredCount:number;
 
-  constructor( onFinishedFn, modeName = "BASIC", requiredCount ) {
+  constructor( onFinishedFn:Function, modeName:string = "BASIC", requiredCount:number ) {
     super( );
     this._extAdd( __TYPE__ );
 
@@ -18,7 +21,7 @@ export default class SimpleDisplayMode extends Instandable {
     this._requiredCount = requiredCount;
   }
 
-  addPinPos( targetPin, ankerPos ) {
+  addPinPos( targetPin:DefaultPin, ankerPos:AttachmentAnker ) : void {
     this._choosenPins[ targetPin.getID( ) ] = {
       pin: targetPin,
       anker: ankerPos,
@@ -28,12 +31,12 @@ export default class SimpleDisplayMode extends Instandable {
     this._index++;
   }
 
-  removePinPos( pinID ) {
+  removePinPos( pinID:string ) : void {
     delete this._choosenPins[ pinID ];
   }
 
-  getAllChoosenPins( ) {
-    let resultList = [ ];
+  getAllChoosenPins( ) : any/*DefaultPin*/ {
+    let resultList:any/*DefaultPin*/[] = [ ];
 
     for (let curPinID in this._choosenPins)
       resultList.push( this._choosenPins[ curPinID ] );
@@ -41,14 +44,14 @@ export default class SimpleDisplayMode extends Instandable {
     return resultList;
   }
 
-  getSortedList( ) {
+  getSortedList( ) : any/*DefaultPin*/ {
     return this.getAllChoosenPins( ).sort(
-      (chooseInfoA, chooseInfoB) => chooseInfoA.index - chooseInfoB.index
+      (chooseInfoA:any, chooseInfoB:any) => chooseInfoA.index - chooseInfoB.index
     )
   }
 
-  getAnkerCount( ) {
-    let count = 0;
+  getAnkerCount( ) : number {
+    let count:number = 0;
 
     for (let i in this._choosenPins)
       count++;
@@ -56,40 +59,36 @@ export default class SimpleDisplayMode extends Instandable {
     return count;
   }
 
-  onDisplayModeValueChanged( targetPinAttachOver, pos, newState ) {
-    let targetPin = targetPinAttachOver.pinInstance;
-    let targetPinID = targetPin.getID( );
-    let targetSlot = this._choosenPins[ targetPinID ];
+  onDisplayModeValueChanged( targetPinAttachOver:AttachOverlay, pos:AttachmentAnker, newState:boolean ) : void {
+    let targetPin:DefaultPin = targetPinAttachOver._targetPinScope;
+    let targetPinID:string = targetPin.getID( );
+    let targetSlot:DefaultPin = this._choosenPins[ targetPinID ];
 
     if (targetSlot === undefined && newState)
       this.addPinPos( targetPin, pos );
-    else this.removePinPos( targetPin );
+    else this.removePinPos( targetPinID );
 
     if (this.getAnkerCount( ) >= this._requiredCount) 
       this._finished( );
   }
 
-  start( ) {
+  start( ) : void {
     document.body.classList.add( "custom-can-display--display-mode---open" );
 
     this._choosenPins = { };
     this._index = 0;
-
-    //this._triggerAllPinsEvent( "onEditorModeChanged", true );
   }
 
-  _finished( ) {
+  _finished( ) : void {
     this._onFinishedFn(
       this._modeName,
       this.getSortedList( )
     );
-    //this._triggerAllPinsEvent( "onEditorModeChanged", false );
 
     this.cancle( );
   }
 
-  cancle( ) {
+  cancle( ) : void {
     document.body.classList.remove( "custom-can-display--display-mode---open" );
-    //this._triggerAllPinsEvent( "onEditorModeChanged", false );
   }
 }

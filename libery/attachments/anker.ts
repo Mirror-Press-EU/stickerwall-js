@@ -10,42 +10,48 @@ const POS_MAPPING = {
 };
 
 export default class AttachmentAnker extends Instandable {
-  _position = POS_MAPPING.center;
+  _position:string = POS_MAPPING.center;
 
-  constructor( position ) {
+  constructor( position:string="center" ) {
+
     super( );
     this._extAdd( "attachment-anker" );
 
     this.setPosition( position );
+
   }
 
-  getPositionMapping( ) { return POS_MAPPING; }
+  getPositionMapping( ) : any {
+    return POS_MAPPING;
+  }
 
-  getKeys( ) {
-    let resultKeys = [ ];
+  getKeys( ) : string[] {
+
+    let resultKeys:string[] = [ ];
     
     for (let key in this.getPositionMapping( ))
       resultKeys.push( key );
 
     return resultKeys;
+
   }
 
-  getPosKey( ) {
+  getPosKey( ) : string {
     return this._position;
   }
 
-  setPosition( posStr ) {
+  setPosition( posStr:string ) : void {
     posStr = posStr.toUpperCase( );
 
     if (PinUtils.anker.validatePositionString( posStr ))
       this._position = posStr;
   }
 
-  equals( posStr ) {
+  equals( posStr:string ) : boolean {
     return this._position.toUpperCase( ) === posStr;
   }
 
-  serializeToJSON( ) {
+  serializeToJSON( ) : any {
     return {
       type: "attachment-anker",
       value: this._position

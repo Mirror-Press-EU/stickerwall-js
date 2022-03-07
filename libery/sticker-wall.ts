@@ -1,3 +1,5 @@
+import Konva from 'konva';
+
 import CustomEvtHndl from "./custom-event-handle";
 import CustomEvtUtils from "./custom-event-handle.utils";
 
@@ -8,15 +10,18 @@ import DefaultPin from './base/pin';
 import CanvasDrawer from './can-drawer';
 import PinConnection from './attachments/connection';
 import AttachmentAnker from './attachments/anker';
+import Pin from './base/pin';
+import SimpleDisplayMode from './display-modes/simple-display-mode';
 
 const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class StickerWallManager {
-  _dropAnimation = null;
-  _pressedKeyMapping = { };
-  _canDrawer;
-  _loadedFolder;
-  _pinToolbar;
+  _dropAnimation:any = null;
+  _pressedKeyMapping:any = { };
+  _canDrawer:CanvasDrawer;
+  _loadedFolder:PinFolder;
+  _pinToolbar:any;
+  _events:any = { };
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -33,7 +38,7 @@ export default class StickerWallManager {
 --*| --- INIT ---
 --*/
 
-  initKonvaCan( ) {
+  initKonvaCan( ) : void {
     let scope = this;
 
     // Add PinEditToolbox  
@@ -52,12 +57,12 @@ export default class StickerWallManager {
   }
 
   // --- Init Canvas ---
-  prepareCanvas( ) {
+  prepareCanvas( ) : void {
     this._canDrawer = new CanvasDrawer( "canvas-display", this._pressedKeyMapping );
     this.initDropAnimation( );
   }
 
-  initDropAnimation( ) {
+  initDropAnimation( ) : void {
     this._dropAnimation = {
       ticker: null,
       targetShape: new Konva.Circle({ radius: 64, fill: 'rgba(0,0,196,.25)', opacity: 0 }),
@@ -69,9 +74,9 @@ export default class StickerWallManager {
 
 
   // --- Bindings ---
-  _bindAllEvents( ) {
-    window.onkeyup = (e) => this.pressedKeyMapping[e.keyCode] = false;
-    window.onkeydown = (e) => this.pressedKeyMapping[e.keyCode] = true;
+  _bindAllEvents( ) : void {
+    window.onkeyup = (e:any) => this._pressedKeyMapping[e.keyCode] = false;
+    window.onkeydown = (e:any) => this._pressedKeyMapping[e.keyCode] = true;
   }
 
 
@@ -79,15 +84,15 @@ export default class StickerWallManager {
  --*| --- GETTER ---
  --*/
 
-  getCanDrawer( ) {
+  getCanDrawer( ) : CanvasDrawer {
     return this._canDrawer;
   }
 
-  getPinFolder( ) {
+  getPinFolder( ) : PinFolder {
     return this._loadedFolder;
   }
 
-  getNextRandomID( prefix ) {
+  getNextRandomID( prefix:any ) : string {
     return this._loadedFolder.getNextRandomID( prefix );
   }
 
@@ -96,17 +101,31 @@ export default class StickerWallManager {
 --*| --- EVENT HANDLE ---
 --*/
 
-  defineEvents( newEventKeys ) {
-    CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
+
+  defineEvent( newEventKey:string ) {
+    this._events[newEventKey] = new CustomEvtHndl( )
   }
 
-  onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }
-  onGuiKeyUp( ) { this._pressedKeyMapping[e.keyCode] = false; }
+  defineEvents( newEventKeys:any ) {
+    let scope = this;
+    if (typeof newEventKeys === "object") {
+      if (newEventKeys instanceof Array) {
 
-  startDropAnimation( targetPin ) {
-    let pM = this;
-    let targetPinCenterPos = this._canDrawer._stage.getRelativePointerPosition( ); // targetPin.getCenterPosition( );
-    let animation = this._dropAnimation;
+        newEventKeys.forEach(
+          (curKey:string) => scope.defineEvent( curKey )
+        );
+
+      } else scope._events = Object.assign( scope._events, newEventKeys );
+    }
+  }
+
+  /*onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }
+  onGuiKeyUp( ) { this._pressedKeyMapping[e.keyCode] = false; }*/
+
+  startDropAnimation( targetPin:DefaultPin ) :void {
+    let pM:StickerWallManager = this;
+    let targetPinCenterPos:any = this._canDrawer._stage.getRelativePointerPosition( ); // targetPin.getCenterPosition( );
+    let animation:any = this._dropAnimation;
 
     if (animation.ticker) animation.ticker.stop( );
 
@@ -128,7 +147,7 @@ export default class StickerWallManager {
       } else tickCount++;
     }, this._canDrawer._backgroundLayer );
     
-    animation.ticker.start( )
+    animation.ticker.start( );
   }
 
 
@@ -136,7 +155,7 @@ export default class StickerWallManager {
 --*| --- ADD ---
 --*/
 
-  addPinNode( newPin ) {
+  addPinNode( newPin:DefaultPin ) : void {
     let scope = this;
 
     if (!this._loadedFolder)
@@ -144,17 +163,17 @@ export default class StickerWallManager {
     
     // Bindings
     newPin.bindAllEvents( {
-      'dragstart': _=> {
+      'dragstart': ()=> {
         newPin._blueprint.setOpacity( 1.0 );
         newPin._container.setOpacity( 0.87 );
       },
-      'dragend': _=> {
+      'dragend': ()=> {
         newPin._blueprint.setOpacity( 0.0 );
         newPin._container.setOpacity( 1.0 );
         scope.startDropAnimation( newPin );
       },
-      'mouseover': _=> document.body.style.cursor = 'pointer',
-      'mouseout': _=> document.body.style.cursor = 'default'
+      'mouseover': ()=> document.body.style.cursor = 'pointer',
+      'mouseout': ()=> document.body.style.cursor = 'default'
     } );
     
     // Storage
@@ -164,19 +183,19 @@ export default class StickerWallManager {
     this._canDrawer.drawPin( newPin.getDisplayNode( ) );
   }
 
-  addAttachment( newAttach ) {
+  addAttachment( newAttach:any ) : void {
     this._loadedFolder.addAttachment( newAttach );
     this._canDrawer.drawAttachment( newAttach );
   }
 
-  attachPinConnection( pinInfoA, pinInfoB ) {
+  attachPinConnection( pinInfoA:any, pinInfoB:any ) : void {
     this.addAttachment(
       new PinConnection(
         pinInfoA.pin,
-        new AttachmentAnker( pinInfoA.anker ),
+        pinInfoA.anker,
 
         pinInfoB.pin,
-        new AttachmentAnker( pinInfoB.anker ),
+        pinInfoB.anker,
       )
     );
   }
@@ -186,12 +205,12 @@ export default class StickerWallManager {
 --*| --- CREATE ---
 --*/
 
-  deployNewFolder( ) {
+  deployNewFolder( ) : void {
     this._loadedFolder = new PinFolder( );
   }
 
-  createPinNode( x, y, id ) {
-    let newNode = new Pin(
+  createPinNode( x:number, y:number, id:string ) : DefaultPin {
+    let newNode = new DefaultPin(
       x, y, id
     )
 
@@ -199,7 +218,14 @@ export default class StickerWallManager {
     return newNode;
   }
   
-  createPinLinkQuote( x, y, id, cover, title, text ) {
+  createPinLinkQuote(
+    x:number,
+    y:number,
+    id:string,
+    cover:string,
+    title:string,
+    text:string
+  ) : PinLinkQoute {
     let newNode = new PinLinkQoute(
       x, y, id,
       { cover, title, text, sourceLogo:null }
@@ -208,10 +234,16 @@ export default class StickerWallManager {
     this.addPinNode( newNode );
     return newNode;
   }
-  createPinNotice( x, y, id, title, text ) {
+  createPinNotice(
+    x:number,
+    y:number,
+    id:string,
+    title:string,
+    text:string
+  ) : PinNotice {
     let newNode = new PinNotice(
       x, y, id,
-      title, text
+      { title, text }
     )
 
     this.addPinNode( newNode );
@@ -223,11 +255,14 @@ export default class StickerWallManager {
 --*| --- Storage ---
 --*/
 
-  loadFromJSON( serialJsonData ) {
-    let jsonObj = (typeof serialJsonData === "string")
-      ? JSON.parse( serialJsonData ) : serialJsonData;
-      
-    this._loadedFolder = new PinFolder( ).loadFromJSON( jsonObj );
+  loadFromJSON( serialJsonData:string ) : void {
+    let jsonObj:any = /*(typeof serialJsonData === "string")
+      ? */JSON.parse( serialJsonData )/* : serialJsonData*/;
+    
+    let loadingFolder:PinFolder = new PinFolder( );
+    loadingFolder.loadFromJSON( jsonObj );
+
+    this._loadedFolder = loadingFolder;
   }
 
   exportFolderToJSON( ) {
@@ -238,13 +273,13 @@ export default class StickerWallManager {
  /*| _______________
 --*| --- Display ---
 --*/
-  startDisplayMode( newDisplayMode /*modeNameStr, newState, onFinishedFunction*/ ) {
+  startDisplayMode( newDisplayMode:SimpleDisplayMode /*modeNameStr, newState, onFinishedFunction*/ ) {
     this._loadedFolder.startDisplayMode( newDisplayMode /*modeNameStr, newState, onFinishedFunction*/ );
   }
   cancleDisplayMode( ) {
     this._loadedFolder.cancleDisplayMode( );
   }
-  setDisplayZoom( newZoomFloat ) { // .25 (25%) -> 1.75 (175%)
+  setDisplayZoom( newZoomFloat:number ) { // .25 (25%) -> 1.75 (175%)
 
   }
 }

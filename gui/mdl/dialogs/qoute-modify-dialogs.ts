@@ -1,20 +1,21 @@
 import PinLinkQoute from "../../../libery/pins/link-qoute";
+import StickerWallManager from "../../../libery/sticker-wall";
 import BaseDialog from "./base-modify-dialog";
 
 export default class QouteModifyDialog extends BaseDialog {
-  constructor( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope ) {
+  constructor( containerDomEl:HTMLElement, pinAttrKeyList:any, dialogMdlMapping:any, pinMangerScope:StickerWallManager ) {
     super( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope );
   }
   
-  initNewValues( ) {
+  initNewValues( ) : void {
     this._resultInstance = new PinLinkQoute( );
   }
   
   // Overriding Methods
-  _getFormularValues( ) {
-    let elMap = this._elements;
-    let titleEl = elMap.fields.title;
-    let textEl = elMap.fields.text;
+  _getFormularValues( ) : any {
+    let elMap:any = this._elements;
+    let titleEl:any = elMap.fields.title;
+    let textEl:any = elMap.fields.text;
 
     if (elMap.container &&  titleEl && textEl) {
       return {
@@ -24,8 +25,8 @@ export default class QouteModifyDialog extends BaseDialog {
     }
   }
 
-  _setFormularValues( initValues ) {
-    let elMap = this._elements;
+  _setFormularValues( initValues:any ) : void {
+    let elMap:any = this._elements;
 
     if (initValues.title
     &&  initValues.text
@@ -36,19 +37,19 @@ export default class QouteModifyDialog extends BaseDialog {
 
   }
 
-  _validateFormular( attrValues ) {
+  _validateFormular( attrValues:any ) : boolean {
     if (attrValues.title && attrValues.text) {
       return (typeof attrValues.title == "string" &&  typeof attrValues.text == "string");
     }
   }
 
-  _applyToStage( attrValues ) {
+  _applyToStage( attrValues:any ) : void {
     this._resultInstance.setDisplayValues( attrValues );
-
-    return this;
   }
 
-  _clearFormularFields( ) {
+  _clearFormularFields( ) : void {
+    let elMap:any = this._elements;
+
     if (elMap.container
     &&  elMap.fields.length > 0
     ) {

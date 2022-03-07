@@ -6,18 +6,21 @@ import BasisPin from "../base/pin";
 
 import __DEFAULT_CONFIG__ from './link-qoute.config';
 
-import CostumIcons from '/./assets/icons/icons';
+import { Image } from 'konva/lib/shapes/Image';
 
 export default class PinLinkQoute extends BasisPin {
 
-  sourceLogo = null;
-  cover = null;
-  title = null;
-  text = null;
+  sourceLogo:Image = null;
+  cover:Konva.Rect = null;
+  title:Konva.Text = null;
+  text:Konva.Text = null;
 
   // --- Defaults ---
-  constructor( posX, posY, dataIdentifyer,
-    valuesObj={ title:null, text:null, sourceLogo:null, cover:null }
+  constructor(
+    posX:number = 0,
+    posY:number = 0,
+    dataIdentifyer:string = "UNSET",
+    valuesObj:any = { title:null, text:null, sourceLogo:null, cover:null }
   ) {
     super( posX, posY, dataIdentifyer );
     this._extAdd( "pin-link-qoute" );
@@ -35,8 +38,8 @@ export default class PinLinkQoute extends BasisPin {
     //this.background.fill( "rgb(100,100,100)" );
   }
 
-  fetchCoverImage( url ) {
-    let targetCover = this.cover;
+  fetchCoverImage( url:string ) : void {
+    let targetCover:any = this.cover;
     let w = this._width;
     let h = this._height;
     /*let coverImage = new Image( );
@@ -44,7 +47,7 @@ export default class PinLinkQoute extends BasisPin {
       targetCover.setFillPatternImage( coverImage );
     };*/
     Utilitys.fetchImage(
-      url, ( img, suc ) => {
+      url, ( img:Image, suc:boolean ) => {
         if (!suc) return;
 
         let zoomLevel = Utilitys.getZoomValueFromImageSize( img, w, h );
@@ -55,11 +58,11 @@ export default class PinLinkQoute extends BasisPin {
     //coverImage.src = url;
   }
 
-  drawAllSprites( ) {
+  drawAllSprites( ) : void {
     let pinScope = this;
-    const beforeBasicFn = _=> { };
-    const afterBasicFn = _=> {
-      pinScope.background = this._addShape(
+    const beforeBasicFn = ()=> { };
+    const afterBasicFn = ()=> {
+      pinScope._background = this._addShape(
         new Konva.Rect( __DEFAULT_CONFIG__.childs.container )
       );
       pinScope.cover = this._addShape(
@@ -67,7 +70,7 @@ export default class PinLinkQoute extends BasisPin {
       );
       pinScope.sourceLogo = this._addShape(
         new Konva.Rect( Object.assign(
-          __DEFAULT_CONFIG__.childs.sourceLogo, { fillPatternImage: CostumIcons.getImage( "test_logo" ) }
+          __DEFAULT_CONFIG__.childs.sourceLogo, { /*fillPatternImage: CostumIcons.getImage( "test_logo" )*/ }
         ) )
       );
       pinScope.title = this._addShape(
@@ -87,12 +90,12 @@ export default class PinLinkQoute extends BasisPin {
     this.drawBasics( beforeBasicFn, afterBasicFn );
   }
 
-  updateSize( ) {
+  updateSize( ) : void {
     let pinHeight = this.getChildrenHeight( ) + 24;
     let pinWidth = this.getChildrenWidth( );
     super.updateSize( );
 
-    this.background.setHeight( pinHeight ); // Background
+    this._background.setHeight( pinHeight ); // Background
 
     this.text.setPosition( {
       x: __DEFAULT_CONFIG__.childs.text.x,
@@ -110,14 +113,14 @@ export default class PinLinkQoute extends BasisPin {
     );
   }*/
 
-  setDisplayValues( newAttrValues ) {
+  setDisplayValues( newAttrValues:any ) : void {
     this.title.setText( newAttrValues.title );
     this.text.setText( newAttrValues.text );
 
     this.updateValues( newAttrValues );
   }
 
-  serializeToJSON( ) {
+  serializeToJSON( ) : any {
     return super.serializeToJSON({
       sourceLogo: null, // this.values.sourceLogo,
       cover: null, //this.values.cover,

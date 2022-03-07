@@ -1,15 +1,19 @@
 import { MDCDialog } from '@material/dialog';
+import DefaultPin from '../../../libery/base/pin';
+import SimpleDisplayMode from '../../../libery/display-modes/simple-display-mode';
+import StickerWallManager from '../../../libery/sticker-wall';
 
 export default class BaseModifyDialog extends MDCDialog {
-  _pinManager = null;
-  _attrList = [ ];
-  _attrValues = { };
-  _elements = { buttons:{ apply:null } };
-  _resultInstance = null;
-  _mode = null;
-  _allowedEvents = [ ];
+  protected _pinManager:StickerWallManager;
+  protected _resultInstance:DefaultPin;
+  protected _mode:string;
 
-  constructor( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope ) {
+  protected _attrList:string[] = [ ];
+  protected _attrValues:any = { };
+  protected _elements:any = { buttons:{ apply:null } };
+  protected _allowedEvents:string[] = [ ];
+
+  constructor( containerDomEl:HTMLElement, pinAttrKeyList:any, dialogMdlMapping:any, pinMangerScope:StickerWallManager ) {
     super( containerDomEl );
 
     this._pinManager = pinMangerScope;
@@ -21,7 +25,7 @@ export default class BaseModifyDialog extends MDCDialog {
     this._bindActionEvent( );
   }
 
-  _declareElements( dialogMdlMapping ) {
+  _declareElements( dialogMdlMapping:any ) : void {
     if (dialogMdlMapping) {
       dialogMdlMapping.container = this;
       
@@ -31,7 +35,7 @@ export default class BaseModifyDialog extends MDCDialog {
     }
   }
 
-  _declareFormValues( pinAttrKeyList ) {
+  _declareFormValues( pinAttrKeyList:string[] ) : void {
     this._attrList = pinAttrKeyList;
 
     pinAttrKeyList.forEach(
@@ -39,20 +43,20 @@ export default class BaseModifyDialog extends MDCDialog {
     );
   }
 
-  _bindActionEvent( ) {
-    let oldScope = this;
-    let btns = this._elements.buttons;
+  _bindActionEvent( ) : void {
+    let oldScope:BaseModifyDialog = this;
+    let btns:any = this._elements.buttons;
     if (btns) {
 
-      let applyBtn = btns.apply;
+      let applyBtn:any = btns.apply;
       if (applyBtn) applyBtn.root.addEventListener(
-        "click", _=> { oldScope.applyFormular( ); }
+        "click", ()=> oldScope.applyFormular( )
       )
 
     }
   }
 
-  fillFormular( newMode, initValues ) {
+  fillFormular( newMode:string, initValues:any ) : void {
     newMode = newMode.toUpperCase( );
     this._mode = newMode;
 
@@ -60,9 +64,9 @@ export default class BaseModifyDialog extends MDCDialog {
     else if (newMode === "MODIFY" && initValues !== null) this._setFormularValues( initValues );
   }
 
-  applyFormular( ) {
-    let attrValues = this._getFormularValues( );
-    let targetPin = this._resultInstance;
+  applyFormular( ) : void {
+    let attrValues:any = this._getFormularValues( );
+    let targetPin:DefaultPin = this._resultInstance;
 
     if (this._validateFormular( attrValues )
     &&  targetPin != null
@@ -78,21 +82,21 @@ export default class BaseModifyDialog extends MDCDialog {
     } else alert("lol");
   }
 
-  cleanFormular( ) {
+  cleanFormular( ) : void {
     this._clearFormularFields( );
     this._attrValues = { };
     this._declareFormValues( this._attrList );
   }
 
-  eventIsAllowed( targetEventName ) {
+  eventIsAllowed( targetEventName:string ) : boolean {
     return this._allowedEvents.indexOf( targetEventName ) >= 0;
   }
   
   // Override Methode
-  initNewValues( ) { }
-  _getFormularValues( ) { }
-  _setFormularValues( initValues ) { }
-  _validateFormular( attrValues ) { }
-  _applyToStage( attrValues ) { }
-  _clearFormularFields( ) { }
+  initNewValues( ) : void { }
+  _getFormularValues( ) : any { return { }; }
+  _setFormularValues( initValues:any ) : void { }
+  _validateFormular( attrValues:any ) : boolean { return false; }
+  _applyToStage( attrValues:any ) : void { }
+  _clearFormularFields( ) : void { }
 }

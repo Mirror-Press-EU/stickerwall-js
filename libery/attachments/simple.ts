@@ -1,17 +1,17 @@
-import PinUtilitys from '../pin-utilitys';
-import BasisPin from '../pin';
+import DefaultPin from '../base/pin';
 import AttachmentAnker from './anker';
-import Instandable from '../../instandable';
+import Instandable from '../instandable';
 
 /*
  *  Verbindet PIN & POS & ATTACHMENTS
  */
 export default class Attachment extends Instandable {
 
-  _targetPin = null;
-  _ankerPos = null;
+  _targetPin:DefaultPin = null;
+  _ankerPos:AttachmentAnker = null;
 
-  constructor( targetPin, ankerPos ) {
+  constructor( targetPin:DefaultPin, ankerPos:any ) {
+    
     super( );
     this._extAdd( "attachment" );
 
@@ -19,13 +19,16 @@ export default class Attachment extends Instandable {
       ankerPos = ankerPos.pos;
 
     this.addAnker( targetPin, ankerPos );
+
   }
 
-  addAnker( targetPin, ankerObj ) {
+  addAnker( targetPin:DefaultPin, ankerObj:AttachmentAnker ) : void {
+
     if (targetPin && ankerObj) {
       this._targetPin = targetPin;
       this._ankerPos = ankerObj;
     }
+
   }
 
   /*addListOfAnkers( ankerList ) {
