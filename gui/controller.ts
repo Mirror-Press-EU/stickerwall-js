@@ -58,9 +58,10 @@ export default class Controller {
 
   initAllDialogs( ) : void {
     /*[ this.controlls.qouteDialog, this.controlls.noticeDialog ]*/
+    let QuoteModifyDialogEl:any = document.getElementById( 'dialog--mod-pin-qoute' );
 
     this.controlls.dialogs.modifyPinQoute.container = new QuoteModifyDialog(
-      document.getElementById( 'dialog--mod-pin-qoute' ),
+      QuoteModifyDialogEl,
       [ "title", "text" ], this.controlls.dialogs.modifyPinQoute,
       this.stickerWall
     );
