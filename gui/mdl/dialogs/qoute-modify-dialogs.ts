@@ -7,12 +7,12 @@ export default class QouteModifyDialog extends BaseDialog {
     super( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope );
   }
   
-  initNewValues( ) : void {
+  override initNewValues( ) : void {
     this._resultInstance = new PinLinkQoute( );
   }
   
   // Overriding Methods
-  _getFormularValues( ) : any {
+  override _getFormularValues( ) : any {
     let elMap:any = this._elements;
     let titleEl:any = elMap.fields.title;
     let textEl:any = elMap.fields.text;
@@ -25,7 +25,7 @@ export default class QouteModifyDialog extends BaseDialog {
     }
   }
 
-  _setFormularValues( initValues:any ) : void {
+  override _setFormularValues( initValues:any ) : void {
     let elMap:any = this._elements;
 
     if (initValues.title
@@ -37,17 +37,17 @@ export default class QouteModifyDialog extends BaseDialog {
 
   }
 
-  _validateFormular( attrValues:any ) : boolean {
+  override _validateFormular( attrValues:any ) : boolean {
     if (attrValues.title && attrValues.text) {
       return (typeof attrValues.title == "string" &&  typeof attrValues.text == "string");
     }
   }
 
-  _applyToStage( attrValues:any ) : void {
+  override _applyToStage( attrValues:any ) : void {
     this._resultInstance.setDisplayValues( attrValues );
   }
 
-  _clearFormularFields( ) : void {
+  override _clearFormularFields( ) : void {
     let elMap:any = this._elements;
 
     if (elMap.container

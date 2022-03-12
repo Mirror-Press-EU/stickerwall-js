@@ -54,7 +54,7 @@ export default class PinConnection extends Shapes {
     );
   }
 
-  serializeToJSON( ) : any {
+  public override serializeToJSON( ) {
     let attach = this.attachments;
 
     return super.serializeToJSON( {

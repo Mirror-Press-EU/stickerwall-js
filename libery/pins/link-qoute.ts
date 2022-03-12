@@ -90,7 +90,7 @@ export default class PinLinkQoute extends BasisPin {
     this.drawBasics( beforeBasicFn, afterBasicFn );
   }
 
-  updateSize( ) : void {
+  override updateSize( ) : void {
     let pinHeight = this.getChildrenHeight( ) + 24;
     let pinWidth = this.getChildrenWidth( );
     super.updateSize( );
@@ -113,14 +113,14 @@ export default class PinLinkQoute extends BasisPin {
     );
   }*/
 
-  setDisplayValues( newAttrValues:any ) : void {
+  override setDisplayValues( newAttrValues:any ) : void {
     this.title.setText( newAttrValues.title );
     this.text.setText( newAttrValues.text );
 
     this.updateValues( newAttrValues );
   }
 
-  serializeToJSON( ) : any {
+  override serializeToJSON( )  {
     return super.serializeToJSON({
       sourceLogo: null, // this.values.sourceLogo,
       cover: null, //this.values.cover,
