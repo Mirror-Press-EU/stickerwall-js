@@ -1,6 +1,6 @@
 import CustomEvtHndl from "../custom-event-handle";
 import CustomEvtUtils from "../custom-event-handle.utils";
-const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged" ];
+const EVENT_KEYS = [ "onPinFocus", "onValueChanged", "onEditorModeChanged" ];
 
 import PinUtilitys from '../base/pin.utils';
 import DefaultPin from '../base/pin';

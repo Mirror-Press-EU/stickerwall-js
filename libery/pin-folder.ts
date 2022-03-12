@@ -7,14 +7,17 @@ import DefaultPin from "./base/pin";
 import Attachment from "./attachments/attachment";
 import SimpleDisplayMode from "./display-modes/simple-display-mode";
 import AttachOverlay from "./base/attach-overlay";
+import Pin from "./base/pin";
 
-const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
+const EVENT_KEYS = [ "onPinFocus", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
   _pins:any = { };
   _attachments:Attachment[] = [ ];
   _events:any = { };
   _displayMode:any;
+
+  private _curSelectedPin:Pin = null;
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -25,49 +28,67 @@ export default class PinFolder {
 --*| --- ADD ---
 --*/
 
-  onPinNodeClicked( targetPin:DefaultPin ) : void {
-    if (this._displayMode)
-      if (!this._displayMode.eventIsAllowed( "onFocusChanged" ))
-        return;
+  onPinNodeClicked( clickEvt:any, targetPin:DefaultPin ) : void {
+    // @ToDo better and generic implementation
+    /*if (this._displayMode)
+      if (!this._displayMode.eventIsAllowed( "onPinFocus" ))
+        return;*/
 
-    let newState = targetPin.toggleSelected( );
-    this._triggerPinEvent( targetPin, "onFocusChanged", newState );
+    this._triggerEvent( 'onPinClick', clickEvt, targetPin );
+
+    let newState:boolean = targetPin.toggleSelected( );
+    let oldSelPin:Pin = this._curSelectedPin;
+
+    let isSameIns:boolean = targetPin === oldSelPin;
+    let targetNewState:boolean = (isSameIns) ? !targetPin.isSelected( ) : true;
+
+    if (!isSameIns && this._curSelectedPin) {
+      this._curSelectedPin._displayBlueprint( false );
+      this._curSelectedPin = null;
+    }
+    
+    if (targetNewState) {
+      this._curSelectedPin = targetPin;
+      this._triggerPinEvent( targetPin, "onPinFocus", newState, oldSelPin );
+    }
+    
+    // Set new States
+    targetPin._displayBlueprint( targetNewState );
   }
 
-  addPinNode( pinInstanceObj:DefaultPin ) : void {
+  addPinNode( pinInstanceObj:DefaultPin, eventMappingObj:any={} ) : void {
 
     let scope = this;
     let pinID = pinInstanceObj.getID( );
 
     if (!this._pins[ pinID ]) {
       // --- Events and Handling ---
-      //pinInstanceObj.getDisplayNode( ).on( 'dragend', _=> this.startMoveAnimation( pinInstanceObj ) );
       //this._pinToolbar.observePinNode( pinInstanceObj ) // @TODO: PinToolbar
-      pinInstanceObj.addEventListener(
+      pinInstanceObj/*.addEventListener(
 
         "click",
         ()=> scope.onPinNodeClicked( pinInstanceObj )
 
-      ).addEventListener(
+      )*/.addEventListener(
 
-        "onEditorModeChanged",
-        (newState:boolean, a:any, b:any, pinScope:DefaultPin ) => {
+        "onEditorModeChanged", (newState:boolean, a:any, b:any, pinScope:DefaultPin ) => {
           if (newState) pinScope._ankerOverlay.performStart(
 
             (attOverlayScope:AttachOverlay, targetPos:any, newState:boolean) => {
               if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
             }
 
-          );
-          else pinInstanceObj._ankerOverlay.performFinish( );
+          ); else pinInstanceObj._ankerOverlay.performFinish( );
         }
 
-      )/*.addEventListener(
+      ).bindAllEvents( {
+        'click':       (p1:any)=>  this.onPinNodeClicked( p1, pinInstanceObj ),
+        'mouseover':   (p1:any)=>  this._triggerEvent( 'onPinMouseover', p1, pinInstanceObj ),
+        'mouseout':    (p1:any)=>  this._triggerEvent( 'onPinMouseout',  p1, pinInstanceObj ),
 
-        "onFocusChanged",
-        (targetPin, newState) => scope.setPinFocus( targetPin, newState )
-
-      )*/;
+        'onMoving':    (p1:any, p2:any, tPin:Pin)=>  this._triggerEvent( 'onPinMoving',    p1, tPin ),
+        'onMoved':     (p1:any, p2:any, tPin:Pin)=>  this._triggerEvent( 'onPinMoved',     p1, tPin ),
+      }).bindAllEvents( eventMappingObj );
 
       // --- Storage ---
       this._pins[ pinID ] = pinInstanceObj;
@@ -127,6 +148,10 @@ export default class PinFolder {
 
   getAttachmentsFromPin( targetPin:DefaultPin ) : any/*Attachment*/[] {
     return this.getAttachmentsFromPinID( targetPin.getID( ) );
+  }
+
+  getSelectedPin( ) : Pin {
+    return this._curSelectedPin;
   }
 
 
@@ -286,5 +311,9 @@ export default class PinFolder {
 
     if (newState)
       targetPin.setFocus( true );
+  }
+
+  pinIsDefined( targetPin:any ) : boolean {
+    return this._pins[ targetPin.getID( ) ] !== undefined
   }
 }

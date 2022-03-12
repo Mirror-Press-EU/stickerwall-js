@@ -10,12 +10,13 @@ import Instandable from '../instandable';
 import AttachOverlay from './attach-overlay';
 //import PinAnkerOverlay from '';
 
+
 const EVENT_KEYS = [
   // Shape Events
-  "dragstart", "dragend", "mouseover", "mouseout", "click",
+  'mouseover', 'mouseout', 'click', 'onFocus', 'onMoving','onMoved',
 
   // Business Events
-  "onSizesChanged", "onFocusChanged", "onValueChanged", "onFinishDrawing", "onEditorModeChanged"
+  "onSizesChanged", "onFocus", "onValueChanged", "onFinishDrawing", "onEditorModeChanged"
 ];
 
 export default class Pin extends Instandable {
@@ -55,9 +56,10 @@ export default class Pin extends Instandable {
     this._width = 256;
 
     this.addEventListener(
-      "onFocusChanged",
-      (newState:boolean) => this._displayBlueprint( newState )
-    );
+      'click', () => this._triggerEvent(
+        "onFocus", this, true
+      )
+    )
   }
 
   _addShape( newShape:any, isRelativ:boolean=false ) : any {
@@ -120,26 +122,41 @@ export default class Pin extends Instandable {
     } );
   }
 
-  bindAllEvents( evtFunctionMapping:any ) : void {
+  bindAllEvents( evtFunctionMapping:any ) : Pin {
     for (let curEvtName in evtFunctionMapping) {
-      let curEvtFn:Function = evtFunctionMapping[ curEvtName ];
+      let curEvtFnList:any = evtFunctionMapping[ curEvtName ];
 
-      if (curEvtFn instanceof Function) {
-        let targetNodeShape:any;
-        switch (curEvtName.toLocaleLowerCase( )) {
+      if (curEvtFnList instanceof Function) curEvtFnList = [ curEvtFnList ];
+
+      if (curEvtFnList instanceof Array) {
+        curEvtFnList.forEach(
+          (curEvtCllbck:Function) => this.addEventListener(
+            curEvtName, (evt1:any, evt2:any, evt3:any) => curEvtCllbck( evt1, evt2, evt3 )
+          )
+        );
+      } 
+
+        // @ToDo All Callbacks Mapping to this._events
+        /*switch (curEvtName.toLocaleLowerCase( )) {
           case "dragstart":
           case "dragend":
           case "mouseover":
           case "mouseout":
+          case "click":
             targetNodeShape = this._container;
             break;
           default:
             targetNodeShape = null;
         }
 
-        if (targetNodeShape) targetNodeShape.on( curEvtName, curEvtFn );
-      }
+        // @ToDo Handle all Events to Class EventHandle
+        if (targetNodeShape) targetNodeShape.on(
+          curEvtName,
+          (evt1:any, evt2:any) => curEvtFn( evt1, this )
+        );*/
     }
+
+    return this;
   }
 
   drawBasics( beforeFn:Function, afterFn:Function ) : void {
@@ -266,7 +283,7 @@ export default class Pin extends Instandable {
 
   setFocus( newState:boolean ) {
     this._guiFocus = newState;
-    //this._triggerEvent( "onFocusChanged", newState, this );
+    //this._triggerEvent( "onFocus", newState, this );
   }
   toggleSelected( ) {
     this._guiFocus = !this._guiFocus;

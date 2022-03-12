@@ -13,7 +13,8 @@ import AttachmentAnker from './attachments/anker';
 import Pin from './base/pin';
 import SimpleDisplayMode from './display-modes/simple-display-mode';
 
-const EVENT_KEYS = [ "onFocusChanged", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
+const EVENT_KEYS:string[] = [ 'onValueChanged', 'onEditorModeChanged', 'onKeyActions', 'onMouseActions' ];
+const EVENT_NODES_KEYS:string[] = [ 'onPinClick', 'onPinFocusChanged', 'onPinValueChanged' ];
 
 export default class StickerWallManager {
   _dropAnimation:any = null;
@@ -25,6 +26,9 @@ export default class StickerWallManager {
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
+    this.defineEvents( EVENT_NODES_KEYS );
+
+    this.addDefaultEventHandles( );
 
     this.prepareCanvas( );
 
@@ -79,6 +83,27 @@ export default class StickerWallManager {
     window.onkeydown = (e:any) => this._pressedKeyMapping[e.keyCode] = true;
   }
 
+  private addDefaultEventHandles( ) : void {
+    if (this._loadedFolder) {
+      [ 'onPinMouseover', 'onPinMouseout', 'onPinClick', 'onPinFocus', 'onPinMoving', 'onPinMoved' ].forEach(
+
+        (curEvtName:string) => this._loadedFolder.addEventListener(
+          curEvtName, (p1:any, targetPin:Pin) => this._triggerEvent( curEvtName, p1, targetPin)
+        )
+
+      );
+    }
+      /*this._loadedFolder
+      .addEventListener( )
+      'mouseover': (p1:any, p2:any)=>  this._triggerEvent( 'mouseover', p1, p2 ),
+      'mouseout': (p1:any, p2:any)=>  this._triggerEvent( 'mouseout', p1, p2 ),
+      'click': (p1:any, p2:any)=>  this._triggerEvent( 'click', p1, p2 ),
+      'focus': (p1:any, p2:any)=>  this._triggerEvent( 'focus', p1, p2 ),
+      'moving': (p1:any, p2:any)=>  this._triggerEvent( 'moving', p1, p2 ),
+      'moved': (p1:any, p2:any)=>  this._triggerEvent( 'moved', p1, p2 ),*/
+  }
+
+
 
   /*| ______________
  --*| --- GETTER ---
@@ -119,6 +144,23 @@ export default class StickerWallManager {
     }
   }
 
+  addEventListener( targetEvtName:string, callFn:Function ) : StickerWallManager {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr) targetEvtHndlr.add( callFn );
+
+    return this;
+  }
+
+  _triggerEvent(
+  targetEvtName:string,
+  param1:any = null,
+  param2:any = null
+  ) : void {
+    let targetEvtHndlr = this._events[ targetEvtName ];
+    if (targetEvtHndlr)
+      targetEvtHndlr.trigger( param1, param2 );
+  }
+
   /*onGuiKeyDown( ) { this._pressedKeyMapping[e.keyCode] = true; }
   onGuiKeyUp( ) { this._pressedKeyMapping[e.keyCode] = false; }*/
 
@@ -134,7 +176,7 @@ export default class StickerWallManager {
     animation.targetShape.show( );
 
     let tickCount = 0;
-    animation.ticker = new Konva.Animation( (frame) => {
+    animation.ticker = new Konva.Animation( (frame:any) => {
       //let scale = Math.sin((frame.time * 2 * Math.PI) / 2000) + 0.001;
       let scale = tickCount / 25;
       animation.targetShape.scale({ x: scale, y: scale });
@@ -155,32 +197,19 @@ export default class StickerWallManager {
 --*| --- ADD ---
 --*/
 
-  addPinNode( newPin:DefaultPin ) : void {
+  addPinNode( newPin:DefaultPin, eventMappingObj:any={} ) : void {
     let scope = this;
 
     if (!this._loadedFolder)
       return console.warn( "Pin cannot added to, without loaded PinWall! First create or open a PinWall Project!" );
     
-    // Bindings
-    newPin.bindAllEvents( {
-      'dragstart': ()=> {
-        newPin._blueprint.setOpacity( 1.0 );
-        newPin._container.setOpacity( 0.87 );
-      },
-      'dragend': ()=> {
-        newPin._blueprint.setOpacity( 0.0 );
-        newPin._container.setOpacity( 1.0 );
-        scope.startDropAnimation( newPin );
-      },
-      'mouseover': ()=> document.body.style.cursor = 'pointer',
-      'mouseout': ()=> document.body.style.cursor = 'default'
-    } );
-    
     // Storage
-    this._loadedFolder.addPinNode( newPin );
+    if (!this._loadedFolder.pinIsDefined( newPin )) {
+      this._loadedFolder.addPinNode( newPin, eventMappingObj );
 
-    // Drawing
-    this._canDrawer.drawPin( newPin.getDisplayNode( ) );
+      // Drawing
+      this._canDrawer.drawPin( newPin.getDisplayNode( ) );
+    } else return console.warn( "Pin cannot add to Canvas, the Node is declare before...!" );
   }
 
   addAttachment( newAttach:any ) : void {
@@ -206,7 +235,28 @@ export default class StickerWallManager {
 --*/
 
   deployNewFolder( ) : void {
+    let scope:StickerWallManager = this;
     this._loadedFolder = new PinFolder( );
+    
+
+    this._loadedFolder.addEventListener(
+      'dragstart', (targetPin:any)=> {
+        debugger;
+        targetPin._blueprint.setOpacity( 1.0 );
+        targetPin._container.setOpacity( 0.87 );
+      }
+    ).addEventListener(
+      'dragend', (targetPin:any)=> {
+        debugger;
+        targetPin._blueprint.setOpacity( 0.0 );
+        targetPin._container.setOpacity( 1.0 );
+        targetPin.startDropAnimation( targetPin );
+      },
+    ).addEventListener(
+      'mouseover', ()=> document.body.style.cursor = 'pointer'
+    ).addEventListener(
+      'mouseout', ()=> document.body.style.cursor = 'default'
+    )
   }
 
   createPinNode( x:number, y:number, id:string ) : DefaultPin {
