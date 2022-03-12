@@ -74,11 +74,11 @@ export default class Pin extends Instandable {
     return newShape;
   }
 
-  defineEvents( newEventKeys:any ) {
+  defineEvents( newEventKeys:any ) : void {
     CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
-  addEventListener( targetEvtName:string, callFn:Function ) {
+  addEventListener( targetEvtName:string, callFn:Function ) : Pin {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr) targetEvtHndlr.add( callFn );
 
@@ -90,7 +90,7 @@ export default class Pin extends Instandable {
   param1:any = null,
   param2:any = null,
   param3:any = null
-  ) {
+  ) : void {
     let targetEvtHndlr = this._events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2, param3, this );
@@ -202,7 +202,7 @@ export default class Pin extends Instandable {
     this.values = Object.assign( this.values, initMappedValuesObj );
   }
 
-  updateValue( key:string, value:any, callUpdate:boolean=true ) {
+  updateValue( key:string, value:any, callUpdate:boolean=true ) : void {
     if (this.values[ key ] !== undefined) {
       this.values[ key ] = value;
 
@@ -211,7 +211,7 @@ export default class Pin extends Instandable {
       );
     }
   }
-  updateValues( keyValueMapping:any ) {
+  updateValues( keyValueMapping:any ) : void {
     for (let k in keyValueMapping) {
       this.updateValue( k, keyValueMapping[ k ], false );
     }
@@ -219,11 +219,11 @@ export default class Pin extends Instandable {
     this._triggerEvent( "onValueChanged", keyValueMapping, this );
   }
 
-  afterDrawCalculates( ) {
+  afterDrawCalculates( ) : void {
     this._blueprint.setHeight( this.getChildrenHeight( ) );
   }
 
-  updateSize( ) { 
+  updateSize( ) : void { 
     this._height = this.getChildrenHeight( );
     this._width = this.getChildrenWidth( );
 
@@ -241,16 +241,16 @@ export default class Pin extends Instandable {
     );
   }
 
-  getDisplayNode( ) {
+  getDisplayNode( ) : any {
     return this._container;
   }
-  getPosition( guiUpdated=false ) {
+  getPosition( guiUpdated=false ) : any {
     let nodeContainer:any = this.getDisplayNode( );
     return (guiUpdated || nodeContainer == null)
       ? { x: this.values.x, y: this.values.y }
       : nodeContainer.getPosition( );
   }
-  getCenterPosition( ) {
+  getCenterPosition( ) : any {
     let pos = this.getPosition( );
     let centerOffset = { x: this.getChildrenHeight( ) /2, y: this.getChildrenWidth( ) /2 };
 
@@ -259,7 +259,7 @@ export default class Pin extends Instandable {
       y: (pos.y + centerOffset.y)
     }
   }
-  getChildrenHeight( ) { 
+  getChildrenHeight( ) : number { 
     return this._contentShapes.reduce( (resHeight, curChildNode) => {
       let curHeight = curChildNode.getPosition( ).y + curChildNode.height( );
 
@@ -267,7 +267,7 @@ export default class Pin extends Instandable {
       return resHeight;
     }, 0 );
   }
-  getChildrenWidth( ) {
+  getChildrenWidth( ) : number {
     return this._contentShapes.reduce( (resWidth, curChildNode) => {
       let curWidth = curChildNode.getPosition( ).x + curChildNode.width( );
 
@@ -276,22 +276,22 @@ export default class Pin extends Instandable {
     }, 0 );
   }
 
-  getID( ) { return this._dataIdentifyer; }
-  getHeight( ) { return this._height; }
-  getWidth( ) { return this._width; }
+  getID( ) : string { return this._dataIdentifyer; }
+  getHeight( ) : number { return this._height; }
+  getWidth( ) : number { return this._width; }
 
-  isSelected( ) { return this._guiFocus; }
+  isSelected( ) : boolean { return this._guiFocus; }
 
-  setFocus( newState:boolean ) {
+  setFocus( newState:boolean ) : void {
     this._guiFocus = newState;
     //this._triggerEvent( "onFocus", newState, this );
   }
-  toggleSelected( ) {
+  toggleSelected( ) : boolean {
     this._guiFocus = !this._guiFocus;
     return this._guiFocus;
   }
 
-  serializeToJSON( valuesObj={ } ) {
+  serializeToJSON( valuesObj={ } ) : any {
     let vPos = this._container.getPosition( );
     let defaultValues = { x: vPos.x, y: vPos.y }
     
@@ -302,7 +302,7 @@ export default class Pin extends Instandable {
     };
   }
 
-  fromSerialized( valuesObj:any ) {
+  fromSerialized( valuesObj:any ) : Pin {
     if (valuesObj.id && valuesObj.type && valuesObj.values) {
       this._dataIdentifyer = valuesObj.id;
       this.pinType = valuesObj.type;
@@ -314,7 +314,7 @@ export default class Pin extends Instandable {
 
   // --- Display Methods ---
   
-  _displayBlueprint( newState:boolean ) {
+  _displayBlueprint( newState:boolean ) : void {
     let blueprintOpacity = "0.0";
     let containerOpacity = __DEFAULT_CONFIG__.styles.opacity.default;
 

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": true,
+    "noImplicitOverride": true,
     "module": "es6",
     "target": "ES2017",
     "jsx": "react",
