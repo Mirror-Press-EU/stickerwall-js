@@ -245,9 +245,10 @@ export default class Pin extends Instandable {
     return this._container;
   }
   getPosition( guiUpdated=false ) {
-    return (guiUpdated)
-      ? this.getDisplayNode( ).getPosition( )
-      : { x: this.values.x, y: this.values.y };
+    let nodeContainer:any = this.getDisplayNode( );
+    return (guiUpdated || nodeContainer == null)
+      ? { x: this.values.x, y: this.values.y }
+      : nodeContainer.getPosition( );
   }
   getCenterPosition( ) {
     let pos = this.getPosition( );
