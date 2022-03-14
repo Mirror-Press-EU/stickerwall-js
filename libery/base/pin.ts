@@ -306,7 +306,7 @@ export default class Pin extends Instandable {
     if (this._dataIdentifyer
     &&  this._dataIdentifyer.toUpperCase( ) !== 'UNKNOWN'
     &&  this._dataIdentifyer === valuesObj.id
-    ) return;
+    ) return null;
 
     if (valuesObj.id && valuesObj.type && valuesObj.values) {
       this._dataIdentifyer = valuesObj.id;
