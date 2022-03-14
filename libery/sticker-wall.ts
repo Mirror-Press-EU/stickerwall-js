@@ -42,6 +42,7 @@ export default class StickerWallManager {
 --*| --- INIT ---
 --*/
 
+  //#region
   initKonvaCan( ) : void {
     let scope = this;
 
@@ -60,7 +61,7 @@ export default class StickerWallManager {
     this.initDropAnimation( );
   }
 
-  // --- Init Canvas ---
+  //#region --- Init Canvas ---
   prepareCanvas( ) : void {
     this._canDrawer = new CanvasDrawer( "canvas-display", this._pressedKeyMapping );
     this.initDropAnimation( );
@@ -75,9 +76,9 @@ export default class StickerWallManager {
     this._dropAnimation.targetShape.hide( );
     this._canDrawer.drawOnBackground( this._dropAnimation.targetShape );
   }
+  //#endregion --- Init Canvas ---
 
-
-  // --- Bindings ---
+  //#region --- Bindings ---
   _bindAllEvents( ) : void {
     window.onkeyup = (e:any) => this._pressedKeyMapping[e.keyCode] = false;
     window.onkeydown = (e:any) => this._pressedKeyMapping[e.keyCode] = true;
@@ -102,13 +103,15 @@ export default class StickerWallManager {
       'moving': (p1:any, p2:any)=>  this._triggerEvent( 'moving', p1, p2 ),
       'moved': (p1:any, p2:any)=>  this._triggerEvent( 'moved', p1, p2 ),*/
   }
+  //#endregion --- Bindings ---
 
-
+  //#endregion
 
   /*| ______________
  --*| --- GETTER ---
  --*/
 
+//#region 
   getCanDrawer( ) : CanvasDrawer {
     return this._canDrawer;
   }
@@ -120,12 +123,13 @@ export default class StickerWallManager {
   getNextRandomID( prefix:any ) : string {
     return this._loadedFolder.getNextRandomID( prefix );
   }
-
+//#endregion
 
  /*| ____________________
 --*| --- EVENT HANDLE ---
 --*/
 
+//#region 
 
   defineEvent( newEventKey:string ) {
     this._events[newEventKey] = new CustomEvtHndl( )
@@ -151,12 +155,9 @@ export default class StickerWallManager {
     return this;
   }
 
-  _triggerEvent(
-  targetEvtName:string,
-  param1:any = null,
-  param2:any = null
-  ) : void {
+  _triggerEvent( targetEvtName:string, param1:any = null, param2:any = null ) : void {
     let targetEvtHndlr = this._events[ targetEvtName ];
+
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2 );
   }
@@ -191,12 +192,13 @@ export default class StickerWallManager {
     
     animation.ticker.start( );
   }
-
+//#endregion
 
  /*| ___________
 --*| --- ADD ---
 --*/
 
+//#region 
   addPinNode( newPin:DefaultPin, eventMappingObj:any={} ) : void {
     let scope = this;
 
@@ -204,12 +206,13 @@ export default class StickerWallManager {
       return console.warn( "Pin cannot added to, without loaded PinWall! First create or open a PinWall Project!" );
     
     // Storage
-    if (!this._loadedFolder.pinIsDefined( newPin )) {
+    if (!this._loadedFolder.pinIsDefined( newPin ))
       this._loadedFolder.addPinNode( newPin, eventMappingObj );
+    /*else
+      return console.warn( "Pin cannot add to Canvas, the Node is declare before...!" );*/
 
-      // Drawing
-      this._canDrawer.drawPin( newPin.getDisplayNode( ) );
-    } else return console.warn( "Pin cannot add to Canvas, the Node is declare before...!" );
+    // Drawing
+    this._canDrawer.drawPin( newPin.getDisplayNode( ) );
   }
 
   addAttachment( newAttach:any ) : void {
@@ -228,16 +231,27 @@ export default class StickerWallManager {
       )
     );
   }
-
+//#endregion
 
  /*| ______________
 --*| --- CREATE ---
 --*/
 
-  deployNewFolder( ) : void {
-    let scope:StickerWallManager = this;
-    this._loadedFolder = new PinFolder( );
+  deployNewFolder( newPinFolder:PinFolder=null, cleanUpFolderEvents:boolean=false, eventMappingObj:any={} ) : void {
+    if (!newPinFolder)
+      newPinFolder = new PinFolder( );
+
+    this._loadedFolder = newPinFolder;
     
+    if (cleanUpFolderEvents) 
+      newPinFolder.cleanUpEvents( );
+
+    newPinFolder.getAllPins( ).forEach(
+      (curPin) => this.addPinNode( curPin, eventMappingObj )
+    );
+    newPinFolder.getAttachmentList( ).forEach(
+      (curAttach) => this.addAttachment( curAttach )
+    );
 
     this._loadedFolder.addEventListener(
       'dragstart', (targetPin:any)=> {
@@ -256,7 +270,7 @@ export default class StickerWallManager {
       'mouseover', ()=> document.body.style.cursor = 'pointer'
     ).addEventListener(
       'mouseout', ()=> document.body.style.cursor = 'default'
-    )
+    );
   }
 
   createPinNode( x:number, y:number, id:string ) : DefaultPin {
@@ -312,7 +326,7 @@ export default class StickerWallManager {
     let loadingFolder:PinFolder = new PinFolder( );
     loadingFolder.loadFromJSON( jsonObj );
 
-    this._loadedFolder = loadingFolder;
+    this.deployNewFolder( loadingFolder );
   }
 
   exportFolderToJSON( ) {

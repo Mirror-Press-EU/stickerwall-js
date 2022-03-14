@@ -142,9 +142,9 @@ const _utils_:any = {
         }
       }],
       
-      view: {
-        pos: { x:0, y:0 },
-        scroll: 1.0
+      "view": {
+        "pos": { "x":0, "y":0 },
+        "scroll": "1.0"
       }
     }`
   }

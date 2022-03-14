@@ -5,7 +5,7 @@ import CustomEvtHndl from "./custom-event-handle";
 const _utils_:any = {
   prototype: {
     defineEvent: (targetClassScope:DefaultPin, newEventKey:string) => {
-      targetClassScope._events[newEventKey] = new CustomEvtHndl( )
+      targetClassScope.events[newEventKey] = new CustomEvtHndl( )
     },
     defineEvents: (targetClassScope:DefaultPin, newEventKeys:any) => {
       if (typeof newEventKeys === "object") {
@@ -15,24 +15,20 @@ const _utils_:any = {
             (curKey) => _utils_.prototype.defineEvent( targetClassScope, curKey )
           );
   
-        } else targetClassScope._events = Object.assign( targetClassScope._events, newEventKeys );
+        } else targetClassScope.events = Object.assign( targetClassScope.events, newEventKeys );
       }
     },
 
-    mappingEvtsToCstmEvts(
-    targetClassScope:DefaultPin,
-    newEventKeys:string[],
-    targetShape:any=null
-    ) {
+    mappingEvtsToCstmEvts( targetClassScope:DefaultPin, newEventKeys:string[], targetShape:any=null ) {
 
-      if (!targetShape) targetShape = targetClassScope._container;
+      if (!targetShape) targetShape = targetClassScope.getDisplayNode( );
 
-      newEventKeys.forEach( (curEvtName:string) => {
-        if (typeof targetShape.on === "function") targetShape.on(
-          curEvtName,
-          (a:any, b:any, c:any) => targetClassScope._triggerEvent( curEvtName, a, b, c )
-        )
-        } );
+      if (typeof targetShape.on === 'function')
+        newEventKeys.forEach(
+          (curEvtName:string) => targetShape.on(
+            curEvtName, (a:any, b:any, c:any) => targetClassScope.triggerEvent( curEvtName, a, b, c )
+          )
+        );
 
     }
   }

@@ -21,7 +21,7 @@ export default class BaseModifyDialog extends MDCDialog {
     this._declareElements( dialogMdlMapping );
     this._declareFormValues( pinAttrKeyList );
 
-    this.initNewValues( );
+    //this.initNewValues( );
     this._bindActionEvent( );
   }
 
@@ -60,8 +60,12 @@ export default class BaseModifyDialog extends MDCDialog {
     newMode = newMode.toUpperCase( );
     this._mode = newMode;
 
-    if (newMode === "CREATE") this.initNewValues( );
-    else if (newMode === "MODIFY" && initValues !== null) this._setFormularValues( initValues );
+    if (newMode === "CREATE")
+      this.initNewValues(
+        this._pinManager.getNextRandomID( "q" )
+      );
+    else if (newMode === "MODIFY" && initValues !== null)
+      this._setFormularValues( initValues );
   }
 
   applyFormular( ) : void {
@@ -73,10 +77,8 @@ export default class BaseModifyDialog extends MDCDialog {
     ) {
       this._applyToStage( attrValues )
       
-      if (this._mode === "CREATE") {
-        targetPin._dataIdentifyer = this._pinManager.getNextRandomID( "q" );
+      if (this._mode === "CREATE")
         this._pinManager.addPinNode( targetPin );
-      }
 
       this._elements.container.close( );
     } else alert("lol");
@@ -93,7 +95,7 @@ export default class BaseModifyDialog extends MDCDialog {
   }
   
   // Override Methode
-  initNewValues( ) : void { }
+  initNewValues( nodeID:string ) : void { }
   _getFormularValues( ) : any { return { }; }
   _setFormularValues( initValues:any ) : void { }
   _validateFormular( attrValues:any ) : boolean { return false; }

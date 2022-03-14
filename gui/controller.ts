@@ -34,6 +34,8 @@ import CostumZoomBar from './zoom-bar';
 import PinConnection from '../libery/attachments/connection';
 import ConnectDisplayMode from '../libery/display-modes/connect-display-mode';
 
+import PinUtilitys from '../libery/base/pin.utils';
+
 export default class Controller {
   controlls:any;
   stickerWall:StickerWallManager;
@@ -46,9 +48,9 @@ export default class Controller {
     // Default "Empty here" Splash Screen
 
     // Test Init
-    this.stickerWall.deployNewFolder( );
+    //this.stickerWall.deployNewFolder( );
     //this.stickerWall.createPinNotice( 100, 100, "test", "test-title", "test text... test text... test text... test text... " );
-    //this.stickerWall.loadFolderFromLocalStorage( );
+    this.stickerWall.loadFromJSON( PinUtilitys.testValues.loadJson );
   }
 
 

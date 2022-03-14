@@ -7,6 +7,7 @@ import BasisPin from "../base/pin";
 import __DEFAULT_CONFIG__ from './link-qoute.config';
 
 import { Image } from 'konva/lib/shapes/Image';
+import Pin from '../base/pin';
 
 export default class PinLinkQoute extends BasisPin {
 
@@ -19,7 +20,7 @@ export default class PinLinkQoute extends BasisPin {
   constructor(
     posX:number = 0,
     posY:number = 0,
-    dataIdentifyer:string = "UNSET",
+    dataIdentifyer:string = null,
     valuesObj:any = { title:null, text:null, sourceLogo:null, cover:null }
   ) {
     super( posX, posY, dataIdentifyer );
@@ -113,14 +114,25 @@ export default class PinLinkQoute extends BasisPin {
     );
   }*/
 
-  override setDisplayValues( newAttrValues:any ) : void {
+  public override setDisplayValues( newAttrValues:any ) : void {
     this.title.setText( newAttrValues.title );
     this.text.setText( newAttrValues.text );
 
     this.updateValues( newAttrValues );
   }
 
-  override serializeToJSON( )  {
+  public override fromSerialized( valuesObj:any, callback:Function=()=>{} ) : Pin {
+
+    super.fromSerialized( valuesObj, ()=> {
+      this.setDisplayValues( valuesObj.values );
+
+      callback( );
+    } );
+
+    return this;
+  }
+
+  public override serializeToJSON( )  {
     return super.serializeToJSON({
       sourceLogo: null, // this.values.sourceLogo,
       cover: null, //this.values.cover,

@@ -20,24 +20,24 @@ const EVENT_KEYS = [
 ];
 
 export default class Pin extends Instandable {
-  _dataIdentifyer:string = "UNKNOW";
-  _height:number = 0;
-  _width:number = 0;
+  protected _dataIdentifyer:string;
+  protected _height:number = 0;
+  protected _width:number = 0;
 
-  _container:any/*Konva.Group*/ = null;
-  _blueprint:any/*Konva.Rect*/ = null;
-  _ankerOverlay:AttachOverlay = null;
-  _background:any/*Konva.Rect*/ = null;
+  protected _container:any/*Konva.Group*/ = null;
+  protected _blueprint:any/*Konva.Rect*/ = null;
+  protected _ankerOverlay:AttachOverlay = null;
+  protected _background:any/*Konva.Rect*/ = null;
 
-  _contentShapes:Konva.Shape[] = [ ];
+  protected _contentShapes:Konva.Shape[] = [ ];
 
-  pinType:string;
-  _guiFocus:boolean = false;
-  values:any = { };
+  protected pinType:string;
+  protected _guiFocus:boolean = false;
+  protected values:any = { };
 
-  _events:any = { };
+  public events:any = { };
 
-  constructor( posX:number, posY:number, dataIdentifyer:string ) {
+  constructor( posX:number, posY:number, dataIdentifyer:string=null ) {
     super( );
     this._extAdd( "pin-base" );
     this.defineEvents( EVENT_KEYS );
@@ -56,13 +56,13 @@ export default class Pin extends Instandable {
     this._width = 256;
 
     this.addEventListener(
-      'click', () => this._triggerEvent(
+      'click', () => this.triggerEvent(
         "onFocus", this, true
       )
     )
   }
 
-  _addShape( newShape:any, isRelativ:boolean=false ) : any {
+  protected _addShape( newShape:any, isRelativ:boolean=false ) : any {
     if (!newShape) console.warn( "First Param (KonvaNodeShape) can not null!" );
     else if (this._container) {
       PinUtilitys.basic.addAttachmentsToCanvasNode( newShape, this );
@@ -74,36 +74,35 @@ export default class Pin extends Instandable {
     return newShape;
   }
 
-  defineEvents( newEventKeys:any ) : void {
+  protected defineEvents( newEventKeys:any ) : void {
     CustomEvtUtils.prototype.defineEvents( this, newEventKeys );
   }
 
-  addEventListener( targetEvtName:string, callFn:Function ) : Pin {
-    let targetEvtHndlr = this._events[ targetEvtName ];
+  public addEventListener( targetEvtName:string, callFn:Function ) : Pin {
+    let targetEvtHndlr = this.events[ targetEvtName ];
     if (targetEvtHndlr) targetEvtHndlr.add( callFn );
 
     return this;
   }
 
-  _triggerEvent(
-  targetEvtName:string,
-  param1:any = null,
-  param2:any = null,
-  param3:any = null
-  ) : void {
-    let targetEvtHndlr = this._events[ targetEvtName ];
+  public triggerEvent( targetEvtName:string, param1:any = null, param2:any = null, param3:any = null ) : void {
+    let targetEvtHndlr = this.events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2, param3, this );
   }
 
-  bindDefaultEvents( ) : void {
+  public getAllEventListeners( ) {
+    return this.events;
+  }
+
+  protected bindDefaultEvents( ) : void {
     let scope = this;
 
     //CustomEvtUtils.prototype.mappingEvtsToCstmEvts( this, [ "dragstart", "dragend", "mouseover", "mouseout", "click" ] );
     [ "dragstart", "dragend", "mouseover", "mouseout", "click" ].forEach(
       (curEvtName) => scope._container.on(
         curEvtName,
-        (a:any, b:any, c:any) => { scope._triggerEvent( curEvtName, a, b, c ); return true; }
+        (a:any, b:any, c:any) => { scope.triggerEvent( curEvtName, a, b, c ); return true; }
       )
     );
 
@@ -122,7 +121,7 @@ export default class Pin extends Instandable {
     } );
   }
 
-  bindAllEvents( evtFunctionMapping:any ) : Pin {
+  public bindAllEvents( evtFunctionMapping:any ) : Pin {
     for (let curEvtName in evtFunctionMapping) {
       let curEvtFnList:any = evtFunctionMapping[ curEvtName ];
 
@@ -159,7 +158,7 @@ export default class Pin extends Instandable {
     return this;
   }
 
-  drawBasics( beforeFn:Function, afterFn:Function ) : void {
+  protected drawBasics( beforeFn:Function, afterFn:Function ) : void {
     if (beforeFn instanceof Function) beforeFn( );
 
     let pinPos = this.getPosition( );
@@ -195,35 +194,35 @@ export default class Pin extends Instandable {
       "onSizesChanged", ()=> this._ankerOverlay.calibrateAllButtons( )
     );
 
-    this._triggerEvent( "onFinishDrawing", this );
+    this.triggerEvent( "onFinishDrawing", this );
   }
 
-  initValues( initMappedValuesObj:any ) : void {
+  protected initValues( initMappedValuesObj:any ) : void {
     this.values = Object.assign( this.values, initMappedValuesObj );
   }
 
-  updateValue( key:string, value:any, callUpdate:boolean=true ) : void {
+  protected updateValue( key:string, value:any, callUpdate:boolean=true ) : void {
     if (this.values[ key ] !== undefined) {
       this.values[ key ] = value;
 
-      if (callUpdate) this._triggerEvent(
+      if (callUpdate) this.triggerEvent(
         "onValueChanged", { key, value }, this
       );
     }
   }
-  updateValues( keyValueMapping:any ) : void {
+  protected updateValues( keyValueMapping:any ) : void {
     for (let k in keyValueMapping) {
       this.updateValue( k, keyValueMapping[ k ], false );
     }
 
-    this._triggerEvent( "onValueChanged", keyValueMapping, this );
+    this.triggerEvent( "onValueChanged", keyValueMapping, this );
   }
 
-  afterDrawCalculates( ) : void {
+  protected afterDrawCalculates( ) : void {
     this._blueprint.setHeight( this.getChildrenHeight( ) );
   }
 
-  updateSize( ) : void { 
+  protected updateSize( ) : void { 
     this._height = this.getChildrenHeight( );
     this._width = this.getChildrenWidth( );
 
@@ -234,23 +233,23 @@ export default class Pin extends Instandable {
     this._blueprint.setWidth( w + ( 2*bPO ) );
     this._blueprint.setHeight( h + ( 2*bPO ) );
 
-    this._triggerEvent(
+    this.triggerEvent(
       "onSizesChanged", // EvtName
       { h, w }, // New ParamValues
       this // PinScope
     );
   }
 
-  getDisplayNode( ) : any {
+  public getDisplayNode( ) : any {
     return this._container;
   }
-  getPosition( guiUpdated=false ) : any {
+  public getPosition( guiUpdated=false ) : any {
     let nodeContainer:any = this.getDisplayNode( );
     return (guiUpdated || nodeContainer == null)
       ? { x: this.values.x, y: this.values.y }
       : nodeContainer.getPosition( );
   }
-  getCenterPosition( ) : any {
+  public getCenterPosition( ) : any {
     let pos = this.getPosition( );
     let centerOffset = { x: this.getChildrenHeight( ) /2, y: this.getChildrenWidth( ) /2 };
 
@@ -259,7 +258,7 @@ export default class Pin extends Instandable {
       y: (pos.y + centerOffset.y)
     }
   }
-  getChildrenHeight( ) : number { 
+  public getChildrenHeight( ) : number { 
     return this._contentShapes.reduce( (resHeight, curChildNode) => {
       let curHeight = curChildNode.getPosition( ).y + curChildNode.height( );
 
@@ -267,7 +266,7 @@ export default class Pin extends Instandable {
       return resHeight;
     }, 0 );
   }
-  getChildrenWidth( ) : number {
+  public getChildrenWidth( ) : number {
     return this._contentShapes.reduce( (resWidth, curChildNode) => {
       let curWidth = curChildNode.getPosition( ).x + curChildNode.width( );
 
@@ -276,22 +275,22 @@ export default class Pin extends Instandable {
     }, 0 );
   }
 
-  getID( ) : string { return this._dataIdentifyer; }
-  getHeight( ) : number { return this._height; }
-  getWidth( ) : number { return this._width; }
+  public getID( ) : string { return this._dataIdentifyer; }
+  public getHeight( ) : number { return this._height; }
+  public getWidth( ) : number { return this._width; }
 
-  isSelected( ) : boolean { return this._guiFocus; }
+  public isSelected( ) : boolean { return this._guiFocus; }
 
-  setFocus( newState:boolean ) : void {
+  public setFocus( newState:boolean ) : void {
     this._guiFocus = newState;
     //this._triggerEvent( "onFocus", newState, this );
   }
-  toggleSelected( ) : boolean {
+  public toggleSelected( ) : boolean {
     this._guiFocus = !this._guiFocus;
     return this._guiFocus;
   }
 
-  serializeToJSON( valuesObj={ } ) : any {
+  public serializeToJSON( valuesObj={ } ) : any {
     let vPos = this._container.getPosition( );
     let defaultValues = { x: vPos.x, y: vPos.y }
     
@@ -302,19 +301,26 @@ export default class Pin extends Instandable {
     };
   }
 
-  fromSerialized( valuesObj:any ) : Pin {
+  public fromSerialized( valuesObj:any, callback:Function=()=>{} ) : Pin {
+
+    if (this._dataIdentifyer
+    &&  this._dataIdentifyer.toUpperCase( ) !== 'UNKNOWN'
+    &&  this._dataIdentifyer === valuesObj.id
+    ) return;
+
     if (valuesObj.id && valuesObj.type && valuesObj.values) {
       this._dataIdentifyer = valuesObj.id;
-      this.pinType = valuesObj.type;
-      this.values = valuesObj.values;
+      this.setDisplayValues( valuesObj.values );
     }
+
+    if (callback) callback( );
 
     return this;
   }
 
   // --- Display Methods ---
   
-  _displayBlueprint( newState:boolean ) : void {
+  public _displayBlueprint( newState:boolean ) : void {
     let blueprintOpacity = "0.0";
     let containerOpacity = __DEFAULT_CONFIG__.styles.opacity.default;
 
@@ -329,5 +335,15 @@ export default class Pin extends Instandable {
 
   // BasePin has no Attributes...
   // @Override
-  setDisplayValues( attrValues:any ) : void { }
+  public setDisplayValues( attrValues:any ) : void {
+    this._dataIdentifyer = attrValues.id;
+    this.pinType = attrValues.type;
+    this.values = attrValues.values;
+
+    this.updateValues( attrValues );
+  }
+
+  public getAttachOverlay( ) : AttachOverlay {
+    return this._ankerOverlay;
+  }
 }

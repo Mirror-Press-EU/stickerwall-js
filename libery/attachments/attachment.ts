@@ -14,7 +14,7 @@ export default class Attachment extends Instandable {
   _targetPin:DefaultPin = null;
   _ankerPos:any = null;
 
-  _events:any = { };
+  events:any = { };
 
   constructor( targetPin:DefaultPin, ankerPos:string ) {
     super( );

@@ -42,28 +42,29 @@ export default class CanvasDrawer {
     var scaleBy = 1.05;
     let stage = this._stage;
     
-    stage.on('wheel', (e) => {
+    stage.on('wheel', (e:any) => {
       if (this._pressedKeyMapping['a']) return;
 
       // stop default scrolling
       e.evt.preventDefault();
 
-      var oldScale = stage.scaleX();
-      var pointer = stage.getPointerPosition();
+      var oldScale:number = stage.scaleX( );
+      var pointer:any = stage.getPointerPosition( );
 
       var mousePointTo = {
-        x: (pointer.x - stage.x()) / oldScale,
-        y: (pointer.y - stage.y()) / oldScale,
+        x: (pointer.x - stage.x( )) / oldScale,
+        y: (pointer.y - stage.y( )) / oldScale
       };
 
       // how to scale? Zoom in? Or zoom out?
-      let direction = e.evt.deltaY > 0 ? 1.25 : -1.25;
+      let direction:number = e.evt.deltaY > 0 ? 1.25 : -1.25;
 
       // when we zoom on trackpad, e.evt.ctrlKey is true
       // in that case lets revert direction
-      if (e.evt.ctrlKey) direction = -direction;
+      if (e.evt.ctrlKey)
+        direction = -direction;
 
-      var newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+      var newScale:number = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
       if (newScale === 1.75 && oldScale === 1.75) return;
       else if (newScale === 0.05 && oldScale === 0.05) return;
       else if (newScale > 1.75) newScale = 1.75;
@@ -77,7 +78,11 @@ export default class CanvasDrawer {
       };
 
       stage.position(newPos);
-      this.eventHandle.onWheelZoom( newScale, newPos );
+
+      let shortDisplayScaleStr:string = newScale.toFixed( 2 );
+      let shortDisplayScale:number = Number.parseFloat( shortDisplayScaleStr );
+      
+      this.eventHandle.onWheelZoom( shortDisplayScale, newPos );
     });
   }
 
@@ -92,7 +97,10 @@ export default class CanvasDrawer {
   }
 
   drawPin( pinInstanceNode:any ) {
-    this._pinLayer.add( pinInstanceNode );
+    let checkIsAppendet = this._pinLayer.getChildren( ).indexOf( pinInstanceNode ) >= 0;
+
+    if (!checkIsAppendet)
+      this._pinLayer.add( pinInstanceNode );
 
     return this;
   }

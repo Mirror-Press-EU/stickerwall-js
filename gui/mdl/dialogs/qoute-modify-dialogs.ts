@@ -7,8 +7,8 @@ export default class QouteModifyDialog extends BaseDialog {
     super( containerDomEl, pinAttrKeyList, dialogMdlMapping, pinMangerScope );
   }
   
-  override initNewValues( ) : void {
-    this._resultInstance = new PinLinkQoute( );
+  override initNewValues( nodeID:string ) : void {
+    this._resultInstance = new PinLinkQoute( 0, 0, nodeID );
   }
   
   // Overriding Methods

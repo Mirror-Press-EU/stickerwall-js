@@ -12,12 +12,13 @@ import Pin from "./base/pin";
 const EVENT_KEYS = [ "onPinFocus", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
 export default class PinFolder {
-  _pins:any = { };
-  _attachments:Attachment[] = [ ];
-  _events:any = { };
-  _displayMode:any;
 
-  private _curSelectedPin:Pin = null;
+  protected _pins:any = { };
+  protected _attachments:Attachment[] = [ ];
+  protected _displayMode:any;
+  protected  _curSelectedPin:Pin = null;
+  
+  public events:any = { };
 
   constructor( ) {
     this.defineEvents( EVENT_KEYS );
@@ -72,13 +73,15 @@ export default class PinFolder {
       )*/.addEventListener(
 
         "onEditorModeChanged", (newState:boolean, a:any, b:any, pinScope:DefaultPin ) => {
-          if (newState) pinScope._ankerOverlay.performStart(
-
-            (attOverlayScope:AttachOverlay, targetPos:any, newState:boolean) => {
-              if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
-            }
-
-          ); else pinInstanceObj._ankerOverlay.performFinish( );
+          let targetAttachOverlay = pinScope.getAttachOverlay( );
+          if (newState)
+            targetAttachOverlay.performStart(
+              (attOverlayScope:AttachOverlay, targetPos:any, newState:boolean) => {
+                if (scope._displayMode) scope._displayMode.onDisplayModeValueChanged( attOverlayScope, targetPos, newState );
+              }
+            );
+          else
+            targetAttachOverlay.performFinish( );
         }
 
       ).bindAllEvents( {
@@ -185,7 +188,7 @@ export default class PinFolder {
         }
 
         if (newNode) {
-          newNode.fromSerialized( pinJsonObj );
+          newNode.fromSerialized( curNodeData );
           scope.addPinNode( newNode );
         } else console.warn( "Error in Pin serialized routine..." );
       } );
@@ -239,43 +242,40 @@ export default class PinFolder {
   }
 
   addEventListener( targetEvtName:string, callFn:Function ) : PinFolder {
-    let targetEvtHndlr = this._events[ targetEvtName ];
+    let targetEvtHndlr = this.events[ targetEvtName ];
     if (targetEvtHndlr) targetEvtHndlr.add( callFn );
 
     return this;
   }
 
-  _triggerEvent(
-  targetEvtName:string,
-  param1:any = null,
-  param2:any = null
-  ) : void {
-    let targetEvtHndlr = this._events[ targetEvtName ];
+  _triggerEvent( targetEvtName:string, param1:any = null, param2:any = null ) : void {
+    let targetEvtHndlr = this.events[ targetEvtName ];
     if (targetEvtHndlr)
       targetEvtHndlr.trigger( param1, param2 );
   }
 
-  _triggerPinEvent(
-  targetPin:DefaultPin,
-  eventNameStr:string,
-  param1:any = null,
-  param2:any = null
-  ) : void {
+  _triggerPinEvent( targetPin:DefaultPin, eventNameStr:string, param1:any = null, param2:any = null ) : void {
     /*if (typeof targetPin === "string") targetPin = this.getPin( targetPin );*/
 
-    targetPin._triggerEvent( eventNameStr, param1, param2 );
+    targetPin.triggerEvent( eventNameStr, param1, param2 );
   }
 
-  _triggerAllPinsEvent(
-  eventNameStr:string,
-  param1:any = null,
-  param2:any = null
-  ) : void {
+  _triggerAllPinsEvent( eventNameStr:string, param1:any = null, param2:any = null ) : void {
     this.getAllPins( ).forEach(
       (curPin:DefaultPin) => this._triggerPinEvent( curPin, eventNameStr, param1, param2 )
     );
   }
 
+  cleanUpEvents( ) : void {
+    let allEvtListeners:any = this.events;
+
+    for (let evtListenerKey in allEvtListeners) {
+      let evtListener:CustomEvtHndl = allEvtListeners[ evtListenerKey ];
+
+      if (!evtListener && evtListener instanceof CustomEvtHndl)
+        evtListener.cleanUp( );
+    }
+  }
 
 
   /*| ______________________

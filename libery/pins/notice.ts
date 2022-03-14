@@ -7,7 +7,7 @@ export default class PinNotice extends Pin {
   constructor(
     posX:number = 0,
     posY:number = 0,
-    dataIdentifyer:string = "UNSET",
+    dataIdentifyer:string = null,
     valuesObj:any = { title:null, text:null }
     ) {
     super( posX, posY, dataIdentifyer );

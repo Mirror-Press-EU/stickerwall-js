@@ -24,7 +24,7 @@ export default class CostumZoomBar {
           zoomBarResetZoomButton.root.classList.remove( "mdc-button--raised" );
         }
 
-        zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" ).innerText = (newScale * 100) + "%";
+        zoomBarContainer.querySelector( ".costum-zoom-bar--b-text" ).innerText = Math.round(newScale * 100) + "%";
       };
 
       zoomBarResetZoomButton.root.addEventListener( 'click', ()=> {

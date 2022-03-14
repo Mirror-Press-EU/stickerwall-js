@@ -46,8 +46,8 @@ export default class AttachOverlay extends Konva.Group {
   }
 
   _calculatePosition( targetAnker:string ) : any {
-    let pinWidth:number = this._targetPinScope._width;
-    let pinHeight:number = this._targetPinScope._width;
+    let pinWidth:number = this._targetPinScope.getWidth( );
+    let pinHeight:number = this._targetPinScope.getHeight( );
 
     // Simple Positons
     let targetPos:any = PinUtilitys.anker.getCornerOffsetPos(
