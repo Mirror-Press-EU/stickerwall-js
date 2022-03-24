@@ -210,9 +210,6 @@ export default class StickerWallManager {
       this._loadedFolder.addPinNode( newPin, eventMappingObj );
     /*else
       return console.warn( "Pin cannot add to Canvas, the Node is declare before...!" );*/
-
-    // Drawing
-    this._canDrawer.drawPin( newPin.getDisplayNode( ) );
   }
 
   addAttachment( newAttach:any ) : void {
@@ -239,7 +236,7 @@ export default class StickerWallManager {
 
   deployNewFolder( newPinFolder:PinFolder=null, cleanUpFolderEvents:boolean=false, eventMappingObj:any={} ) : void {
     if (!newPinFolder)
-      newPinFolder = new PinFolder( );
+      newPinFolder = new PinFolder( this._canDrawer );
 
     this._loadedFolder = newPinFolder;
     
@@ -323,7 +320,7 @@ export default class StickerWallManager {
     let jsonObj:any = /*(typeof serialJsonData === "string")
       ? */JSON.parse( serialJsonData )/* : serialJsonData*/;
     
-    let loadingFolder:PinFolder = new PinFolder( );
+    let loadingFolder:PinFolder = new PinFolder( this._canDrawer);
     loadingFolder.loadFromJSON( jsonObj );
 
     this.deployNewFolder( loadingFolder );

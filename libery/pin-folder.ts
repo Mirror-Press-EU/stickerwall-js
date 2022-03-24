@@ -8,6 +8,7 @@ import Attachment from "./attachments/attachment";
 import SimpleDisplayMode from "./display-modes/simple-display-mode";
 import AttachOverlay from "./base/attach-overlay";
 import Pin from "./base/pin";
+import CanvasDrawer from "./can-drawer";
 
 const EVENT_KEYS = [ "onPinFocus", "onValueChanged", "onEditorModeChanged", "onKeyActions", "onMouseActions", "onShapePushed" ];
 
@@ -20,7 +21,7 @@ export default class PinFolder {
   
   public events:any = { };
 
-  constructor( ) {
+  constructor( private _canDrawer:CanvasDrawer ) {
     this.defineEvents( EVENT_KEYS );
   }
   
@@ -93,6 +94,9 @@ export default class PinFolder {
         'onMoved':     (p1:any, p2:any, tPin:Pin)=>  this._triggerEvent( 'onPinMoved',     p1, tPin ),
       }).bindAllEvents( eventMappingObj );
 
+      
+      // Drawing
+      this._canDrawer.drawPin( pinInstanceObj.getDisplayNode( ) );
       pinInstanceObj.updatePos( );
 
       // --- Storage ---

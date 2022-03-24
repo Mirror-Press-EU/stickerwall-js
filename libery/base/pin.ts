@@ -67,8 +67,10 @@ export default class Pin extends Instandable {
     else if (this._container) {
       PinUtilitys.basic.addAttachmentsToCanvasNode( newShape, this );
 
-      if (!isRelativ) this._contentShapes.push( newShape );
-      /*if (this._container != newShape) */this._container.add( newShape );
+      if (!isRelativ)
+        this._contentShapes.push( newShape );
+      
+      this._container.add( newShape );
     }
 
     return newShape;
@@ -185,7 +187,7 @@ export default class Pin extends Instandable {
     if (afterFn instanceof Function) afterFn( );
 
     this._ankerOverlay = this._addShape(
-      new AttachOverlay( this._width, this._height, this )
+      new AttachOverlay( this._width, this._height, this ), true
     );
 
     this.bindDefaultEvents( );
@@ -276,11 +278,13 @@ export default class Pin extends Instandable {
   }
 
   public updatePos( pX:number=null, pY:number=null ) {
-    let x:number = isNaN(pX) ? this.values.x : pX;
-    let y:number = isNaN(pY) ? this.values.y : pY;
+    let newPos:any = {
+      x: isNaN(pX) ? pX : this.values.x,
+      y: isNaN(pY) ? pY : this.values.y
+    };
 
-    this.updateValues( { x, y } );
-    this._container.setPosition( x, y );
+    this.updateValues( newPos );
+    this._container.setPosition( newPos );
   }
 
   public getID( ) : string { return this._dataIdentifyer; }

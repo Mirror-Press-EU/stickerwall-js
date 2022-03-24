@@ -64,7 +64,7 @@ export default class PinLinkQoute extends BasisPin {
     const beforeBasicFn = ()=> { };
     const afterBasicFn = ()=> {
       pinScope._background = this._addShape(
-        new Konva.Rect( __DEFAULT_CONFIG__.childs.container )
+        new Konva.Rect( __DEFAULT_CONFIG__.childs.container ), true
       );
       pinScope.cover = this._addShape(
         new Konva.Rect( __DEFAULT_CONFIG__.childs.cover )
