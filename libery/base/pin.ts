@@ -275,6 +275,14 @@ export default class Pin extends Instandable {
     }, 0 );
   }
 
+  public updatePos( pX:number=null, pY:number=null ) {
+    let x:number = isNaN(pX) ? this.values.x : pX;
+    let y:number = isNaN(pY) ? this.values.y : pY;
+
+    this.updateValues( { x, y } );
+    this._container.setPosition( x, y );
+  }
+
   public getID( ) : string { return this._dataIdentifyer; }
   public getHeight( ) : number { return this._height; }
   public getWidth( ) : number { return this._width; }

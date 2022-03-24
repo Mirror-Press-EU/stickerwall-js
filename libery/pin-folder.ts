@@ -93,6 +93,8 @@ export default class PinFolder {
         'onMoved':     (p1:any, p2:any, tPin:Pin)=>  this._triggerEvent( 'onPinMoved',     p1, tPin ),
       }).bindAllEvents( eventMappingObj );
 
+      pinInstanceObj.updatePos( );
+
       // --- Storage ---
       this._pins[ pinID ] = pinInstanceObj;
     } else console.log( "ID Kollision! Fehler bei Key Regestrierung!" );
